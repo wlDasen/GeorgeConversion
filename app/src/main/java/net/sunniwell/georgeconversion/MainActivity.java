@@ -1,6 +1,6 @@
 package net.sunniwell.georgeconversion;
 
-import android.graphics.Color;
+import android.content.Intent;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -12,9 +12,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,15 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerLayout;
     private List<Country> countryList = new ArrayList<>();
     private CustomAdapter adapter;
+    private ItemSwipeListener listener;
+    /**
+     * item右滑状态
+     */
+    private boolean isSwiped = false;
+    /**
+     * 右滑item位置
+     */
+    private int swipePostion = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +61,42 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Refresh", Toast.LENGTH_SHORT).show();
             }
         });
+        listener = new ItemSwipeListener() {
+            @Override
+            public void onItemSwipe(int position) {
+                Log.d(TAG, "onItemSwipe: ");
+                isSwiped = true;
+                swipePostion = position;
+                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                startActivity(intent);
+            }
+        };
         recyclerLayout = (RecyclerView)findViewById(R.id.recycler_layout);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerLayout.setLayoutManager(manager);
         adapter = new CustomAdapter(countryList);
         recyclerLayout.setAdapter(adapter);
         recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
-        ItemTouchHelper.Callback callback = new DragItemHelperCallback();
+        ItemTouchHelper.Callback callback = new DragItemHelperCallback(listener);
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(recyclerLayout);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: ");
+        if (isSwiped) {
+            Log.d(TAG, "onResume: isSwiped.");
+            adapter.notifyItemChanged(swipePostion);
+            isSwiped = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
     }
 
     private void initData() {
