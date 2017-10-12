@@ -28,11 +28,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private RelativeLayout selectedItem;
 
     public CustomAdapter(List<Country> countryList) {
+        Log.d(TAG, "CustomAdapter: ");
         this.countryList = countryList;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.d(TAG, "onCreateViewHolder: ");
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_item, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
@@ -47,6 +49,18 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.moneySymbol.setText(country.getMoneySymbol());
         holder.itemView.setTag(position);
         holder.itemView.setOnClickListener(this);
+//        if (selectedItem == null) {
+//            Log.d(TAG, "onBindViewHolder: null.");
+//            if (position == 0) {
+//                Log.d(TAG, "onBindViewHolder: set position 0.");
+//                selectedItem = (RelativeLayout)holder.itemView;
+//                selectedItem.setBackgroundColor(Color.parseColor("#27408B"));
+//            }
+//        } else {
+//            Log.d(TAG, "onBindViewHolder: not null.");
+//            selectedItem.setBackgroundColor(Color.parseColor("#27408B"));
+//        }
+//        Log.d(TAG, "onBindViewHolder: tag:" + selectedItem.getTag());
     }
 
     @Override
@@ -56,7 +70,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "onClick: ");
         if (selectedItem != null) {
+            Log.d(TAG, "onClick: not null");
             selectedItem.setBackgroundColor(Color.parseColor("#3F51B5"));
         }
         RelativeLayout layout = (RelativeLayout)v;

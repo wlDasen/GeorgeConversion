@@ -35,7 +35,6 @@ public class DragItemHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        Log.d(TAG, "onSwiped: direction:" + direction);
         // TODO: 2017/10/12
         if (direction == ItemTouchHelper.START) {
             Log.d(TAG, "onSwiped: 往左滑动");
