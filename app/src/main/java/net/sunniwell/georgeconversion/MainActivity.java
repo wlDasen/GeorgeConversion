@@ -73,4 +73,19 @@ public class MainActivity extends AppCompatActivity {
         Button btn = (Button)view;
         Log.d(TAG, "onButtonClicked: text:" + btn.getText());
     }
+
+    /**
+     * 返回按键处理接口
+     */
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: ");
+        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            Log.d(TAG, "onBackPressed: open.");
+            drawerLayout.closeDrawers();
+        } else {
+            Log.d(TAG, "onBackPressed: not open.");
+            super.onBackPressed();
+        }
+    }
 }
