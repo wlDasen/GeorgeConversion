@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/g1">
+        <item
+            android:id="@+id/item1"
+            android:icon="@drawable/nav"
+            android:title="周边换汇店" />
+    </group>
+    <item
+        android:id="@+id/item2"
+        android:icon="@drawable/nav"
+        android:title="设置" />
+    <item
+        android:id="@+id/item3"
+        android:icon="@drawable/nav"
+        android:title="求个赞" />
+    <item
+        android:id="@+id/item4"
+        android:icon="@drawable/nav"
+        android:title="意见反馈" />
+    <item
+        android:id="@+id/item5"
+        android:icon="@drawable/nav"
+        android:title="关于我们" />
+    <item
+        android:id="@+id/item6"
+        android:icon="@drawable/nav"
+        android:title="免责声明" />
+</menu>
