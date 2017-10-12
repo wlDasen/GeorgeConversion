@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private Button refreshBtn;
     private RecyclerView recyclerLayout;
     private List<Country> countryList = new ArrayList<>();
+    private CustomAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerLayout = (RecyclerView)findViewById(R.id.recycler_layout);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerLayout.setLayoutManager(manager);
-        CustomAdapter adapter = new CustomAdapter(countryList);
+        adapter = new CustomAdapter(countryList);
         recyclerLayout.setAdapter(adapter);
         recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         ItemTouchHelper.Callback callback = new DragItemHelperCallback();
