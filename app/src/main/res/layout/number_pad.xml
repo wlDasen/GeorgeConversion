@@ -14,7 +14,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:onClick="onButtonClicked"
             android:text="7"
             android:textColor="#0000ff"/>
@@ -22,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:onClick="onButtonClicked"
             android:text="8"
             android:textColor="#0000ff"/>
@@ -31,7 +31,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="9"
             android:textColor="#0000ff"/>
         <Button
@@ -39,7 +39,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="+"
             android:textColor="#0000ff"/>
     </LinearLayout>
@@ -52,7 +52,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="4"
             android:textColor="#0000ff"/>
         <Button
@@ -60,7 +60,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="5"
             android:textColor="#0000ff"/>
         <Button
@@ -68,7 +68,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="6"
             android:textColor="#0000ff"/>
         <Button
@@ -76,7 +76,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="-"
             android:textColor="#0000ff"/>
     </LinearLayout>
@@ -89,7 +89,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="1"
             android:textColor="#0000ff"/>
         <Button
@@ -97,7 +97,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="2"
             android:textColor="#0000ff"/>
         <Button
@@ -105,7 +105,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="3"
             android:textColor="#0000ff"/>
         <Button
@@ -113,7 +113,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="×"
             android:textColor="#0000ff"/>
     </LinearLayout>
@@ -126,7 +126,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="."
             android:textColor="#0000ff"/>
         <Button
@@ -134,7 +134,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="0"
             android:textColor="#0000ff"/>
         <Button
@@ -142,7 +142,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="x"
             android:textColor="#0000ff"/>
         <Button
@@ -150,7 +150,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="onButtonClicked"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="÷"
             android:textColor="#0000ff"/>
     </LinearLayout>

@@ -1,4 +1,4 @@
-package net.sunniwell.georgeconversion;
+package net.sunniwell.georgeconversion.recyclerview;
 
 import android.content.Context;
 import android.content.Intent;

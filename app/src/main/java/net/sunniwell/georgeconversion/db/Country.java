@@ -9,12 +9,23 @@ public class Country {
     private String countryCode;
     private String moneyNumber;
     private String moneySymbol;
+    private boolean isSelected;
 
-    public Country(String countryName, String countryCode, String moneyNumber, String moneySymbol) {
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    public Country(String countryName, String countryCode, String moneyNumber, String moneySymbol,
+        boolean isSelected) {
         this.countryName = countryName;
         this.countryCode = countryCode;
         this.moneyNumber = moneyNumber;
         this.moneySymbol = moneySymbol;
+        this.isSelected = isSelected;
     }
 
     public String getCountryCode() {

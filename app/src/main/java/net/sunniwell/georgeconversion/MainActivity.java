@@ -19,6 +19,9 @@ import android.widget.Toast;
 
 import net.sunniwell.georgeconversion.db.Country;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
+import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
+import net.sunniwell.georgeconversion.recyclerview.DividerItemDecoration;
+import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerLayout.setLayoutManager(manager);
         adapter = new CustomAdapter(countryList);
         recyclerLayout.setAdapter(adapter);
-        recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+//        recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         ItemTouchHelper.Callback callback = new DragItemHelperCallback(listener);
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(recyclerLayout);
@@ -115,10 +118,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        for(int i = 0; i < 4; i++) {
-            Country country = new Country("中国", "CNY", "100", "人民币 ¥");
-            countryList.add(country);
-        }
+        Country country1 = new Country("中国1", "CNY1", "101", "人民币1 ¥", false);
+        Country country2 = new Country("中国2", "CNY2", "102", "人民币2 ¥", false);
+        Country country3 = new Country("中国3", "CNY3", "103", "人民币3 ¥", false);
+        Country country4 = new Country("中国4", "CNY4", "104", "人民币4 ¥", false);
+        countryList.add(country1);
+        countryList.add(country2);
+        countryList.add(country3);
+        countryList.add(country4);
+
     }
 
     @Override
@@ -140,13 +148,17 @@ public class MainActivity extends AppCompatActivity {
     private void exit() {
         if (!isExit) {
             Toast.makeText(this, "再按一次退出George汇率", Toast.LENGTH_LONG).show();
-            mHandler.sendEmptyMessageDelayed(0, 3000);
+            mHandler.sendEmptyMessageDelayed(0, 2000);
         } else {
             finish();
             System.exit(0);
         }
     }
 
+    /**
+     * 数字键盘的点击事件
+     * @param view 点击的键盘按键
+     */
     public void onButtonClicked(View view) {
         Button btn = (Button)view;
         Log.d(TAG, "onButtonClicked: text:" + btn.getText());
