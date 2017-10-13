@@ -161,6 +161,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onButtonClicked(View view) {
         Button btn = (Button)view;
-        Log.d(TAG, "onButtonClicked: text:" + btn.getText());
+        Log.d(TAG, "onButtonClicked: text:" + btn.getText() + ",tag:" + view.getTag());
     }
 }
