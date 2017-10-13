@@ -1,17 +1,15 @@
 package net.sunniwell.georgeconversion;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import net.sunniwell.georgeconversion.db.Country;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,18 +47,18 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.moneySymbol.setText(country.getMoneySymbol());
         holder.itemView.setTag(position);
         holder.itemView.setOnClickListener(this);
-//        if (selectedItem == null) {
-//            Log.d(TAG, "onBindViewHolder: null.");
-//            if (position == 0) {
-//                Log.d(TAG, "onBindViewHolder: set position 0.");
-//                selectedItem = (RelativeLayout)holder.itemView;
-//                selectedItem.setBackgroundColor(Color.parseColor("#27408B"));
-//            }
-//        } else {
-//            Log.d(TAG, "onBindViewHolder: not null.");
-//            selectedItem.setBackgroundColor(Color.parseColor("#27408B"));
-//        }
-//        Log.d(TAG, "onBindViewHolder: tag:" + selectedItem.getTag());
+        if (selectedItem == null) {
+            Log.d(TAG, "onBindViewHolder: null.");
+            if (position == 0) {
+                Log.d(TAG, "onBindViewHolder: set position 0.");
+                selectedItem = (RelativeLayout)holder.itemView;
+                selectedItem.setBackgroundColor(Color.parseColor("#27408B"));
+            }
+        } else {
+            Log.d(TAG, "onBindViewHolder: not null.");
+            selectedItem.setBackgroundColor(Color.parseColor("#27408B"));
+        }
+        Log.d(TAG, "onBindViewHolder: tag:" + selectedItem.getTag());
     }
 
     @Override

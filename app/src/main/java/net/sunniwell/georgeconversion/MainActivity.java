@@ -1,6 +1,8 @@
 package net.sunniwell.georgeconversion;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -10,10 +12,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import net.sunniwell.georgeconversion.db.Country;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 
 import java.util.ArrayList;
@@ -29,6 +33,17 @@ public class MainActivity extends AppCompatActivity {
     private List<Country> countryList = new ArrayList<>();
     private CustomAdapter adapter;
     private ItemSwipeListener listener;
+    /**
+     * 主程序退出标记
+     */
+    private boolean isExit = false;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            isExit = true;
+        }
+    };
     /**
      * item右滑状态
      */
@@ -106,23 +121,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                Log.d(TAG, "onBackPressed: open.");
+                drawerLayout.closeDrawers();
+                return false;
+            } else {
+                exit();
+                return false;
+            }
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    private void exit() {
+        if (!isExit) {
+            Toast.makeText(this, "再按一次退出George汇率", Toast.LENGTH_LONG).show();
+            mHandler.sendEmptyMessageDelayed(0, 3000);
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
+
     public void onButtonClicked(View view) {
         Button btn = (Button)view;
         Log.d(TAG, "onButtonClicked: text:" + btn.getText());
-    }
-
-    /**
-     * 返回按键处理接口
-     */
-    @Override
-    public void onBackPressed() {
-        Log.d(TAG, "onBackPressed: ");
-        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-            Log.d(TAG, "onBackPressed: open.");
-            drawerLayout.closeDrawers();
-        } else {
-            Log.d(TAG, "onBackPressed: not open.");
-            super.onBackPressed();
-        }
     }
 }

@@ -1,4 +1,4 @@
-package net.sunniwell.georgeconversion;
+package net.sunniwell.georgeconversion.db;
 
 /**
  * Created by admin on 2017/10/12.
