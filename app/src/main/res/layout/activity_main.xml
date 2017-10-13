@@ -10,8 +10,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#404040">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.Toolbar
             android:layout_width="match_parent"
@@ -47,6 +46,7 @@
             </RelativeLayout>
         </android.support.v7.widget.Toolbar>
         <android.support.v7.widget.RecyclerView
+            android:background="#404040"
             android:id="@+id/recycler_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
