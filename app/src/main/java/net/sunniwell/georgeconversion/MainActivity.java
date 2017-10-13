@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
+        Log.d(TAG, "onDestroy:... ");
     }
 
     private void initData() {
