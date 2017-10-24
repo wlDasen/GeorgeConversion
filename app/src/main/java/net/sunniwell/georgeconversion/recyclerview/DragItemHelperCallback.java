@@ -7,7 +7,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 
 import net.sunniwell.georgeconversion.MainApplication;
-import net.sunniwell.georgeconversion.TestActivity;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 
 /**
