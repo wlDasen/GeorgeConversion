@@ -3,6 +3,8 @@ package net.sunniwell.georgeconversion;
 import android.app.Application;
 import android.content.Context;
 
+import org.litepal.LitePal;
+
 /**
  * Created by admin on 2017/10/12.
  */
@@ -13,6 +15,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        LitePal.initialize(this);
         mContext = getApplicationContext();
     }
 
