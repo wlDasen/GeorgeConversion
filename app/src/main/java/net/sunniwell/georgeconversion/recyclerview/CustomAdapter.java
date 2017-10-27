@@ -26,7 +26,7 @@ import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>
         implements View.OnClickListener {
-    private List<Money> mCountryList = new ArrayList<>();
+    private List<Money> mMoneyList = new ArrayList<>();
     public static final String TAG = "jpd-CustomAdapter";
     private View mCurrentItem;
     private CustomEditText mCurrentEdit;
@@ -41,7 +41,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     public CustomAdapter(List<Money> countryList) {
         Log.d(TAG, "CustomAdapter: ");
-        this.mCountryList = countryList;
+        this.mMoneyList = countryList;
         listener = new CustomEditText.OnEditTouchListener() {
             @Override
             public void onEditTouch(CustomEditText cet, int position) {
@@ -62,7 +62,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: po:" + position);
-        DefaultMoney money = mCountryList.get(position);
+        Money money = mMoneyList.get(position);
         holder.countryName.setText(money.getName());
         holder.countryCode.setText(money.getCode());
         holder.moneyNumber.setText(String.valueOf(money.getCount()));
@@ -76,21 +76,21 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         int cuPos = getPreFlag();
         if (cuPos == -1) {
             if (position == 0) {
-                mCountryList.get(position).setSelected(true);
+                mMoneyList.get(position).setSelected(true);
                 mCurrentItem = holder.itemView;
                 mCurrentEdit = holder.moneyNumber;
                 mCurrentItemPosition = position;
             }
         } else {
             if (cuPos == position) {
-                mCountryList.get(cuPos).setSelected(true);
+                mMoneyList.get(cuPos).setSelected(true);
                 mCurrentItem = holder.itemView;
                 mCurrentEdit = holder.moneyNumber;
                 mCurrentItemPosition = position;
             }
         }
         holder.itemView.setTag(position);
-        if (mCountryList.get(position).isSelected()) {
+        if (mMoneyList.get(position).isSelected()) {
             holder.itemView.setBackgroundResource(R.drawable.item_bg_select);
             holder.moneyNumber.obtainFocus();
         } else {
@@ -100,7 +100,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return mCountryList.size();
+        return mMoneyList.size();
     }
 
     /**
@@ -141,7 +141,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         Log.d(TAG, "onClick: ");
         if (mCurrentItem != null) {
             mCurrentItem.setBackgroundResource(R.drawable.item_bg);
-            mCountryList.get(mCurrentItemPosition).setSelected(false);
+            mMoneyList.get(mCurrentItemPosition).setSelected(false);
         }
         if (mCurrentEdit != null) {
             mCurrentEdit.loseFocus();
@@ -152,7 +152,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mCurrentEdit = mCusEditList.get(mCurrentItemPosition);
         Log.d(TAG, "onClick: text:" + mCurrentEdit.getText());
         mCurrentEdit.obtainFocus();
-        mCountryList.get(mCurrentItemPosition).setSelected(true);
+        mMoneyList.get(mCurrentItemPosition).setSelected(true);
         setPreFlag(mCurrentItemPosition);
     }
 
