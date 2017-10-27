@@ -63,14 +63,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: po:" + position);
         Money money = mMoneyList.get(position);
-        holder.countryName.setText(money.getName());
-        holder.countryCode.setText(money.getCode());
-        holder.moneyNumber.setText(String.valueOf(money.getCount()));
+        holder.moneyName.setText(money.getName());
+        holder.moneyCode.setText(money.getCode());
+        holder.moneyCount.setText(String.valueOf(money.getCount()));
         holder.itemView.setTag(position);
-        holder.moneyNumber.setTag(position);
-        holder.moneyNumber.setOnEditTouchListener(listener);
+        holder.moneyCount.setTag(position);
+        holder.moneyCount.setOnEditTouchListener(listener);
         holder.itemView.setOnClickListener(this);
-        mCusEditList.add(holder.moneyNumber);
+        mCusEditList.add(holder.moneyCount);
         mViewList.add(holder.itemView);
 
         int cuPos = getPreFlag();
@@ -78,21 +78,21 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             if (position == 0) {
                 mMoneyList.get(position).setSelected(true);
                 mCurrentItem = holder.itemView;
-                mCurrentEdit = holder.moneyNumber;
+                mCurrentEdit = holder.moneyCount;
                 mCurrentItemPosition = position;
             }
         } else {
             if (cuPos == position) {
                 mMoneyList.get(cuPos).setSelected(true);
                 mCurrentItem = holder.itemView;
-                mCurrentEdit = holder.moneyNumber;
+                mCurrentEdit = holder.moneyCount;
                 mCurrentItemPosition = position;
             }
         }
         holder.itemView.setTag(position);
         if (mMoneyList.get(position).isSelected()) {
             holder.itemView.setBackgroundResource(R.drawable.item_bg_select);
-            holder.moneyNumber.obtainFocus();
+            holder.moneyCount.obtainFocus();
         } else {
             holder.itemView.setBackgroundResource(R.drawable.item_bg);
         }
@@ -157,15 +157,15 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView countryName;
-        public TextView countryCode;
-        public CustomEditText moneyNumber;
+        public TextView moneyName;
+        public TextView moneyCode;
+        public CustomEditText moneyCount;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            countryName = (TextView)itemView.findViewById(R.id.item_country_name);
-            countryCode = (TextView)itemView.findViewById(R.id.item_country_code);
-            moneyNumber = (CustomEditText) itemView.findViewById(R.id.item_money_number);
+            moneyName = (TextView)itemView.findViewById(R.id.item_name);
+            moneyCode = (TextView)itemView.findViewById(R.id.item_code);
+            moneyCount = (CustomEditText) itemView.findViewById(R.id.item_count);
         }
     }
 }

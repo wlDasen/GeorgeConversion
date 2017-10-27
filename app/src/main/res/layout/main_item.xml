@@ -6,7 +6,7 @@
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/item_country_name"
+        android:id="@+id/item_name"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
@@ -14,16 +14,16 @@
         android:textSize="20sp"
         android:layout_alignParentLeft="true" />
     <TextView
-        android:id="@+id/item_country_code"
+        android:id="@+id/item_code"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:textColor="#fff"
         android:textSize="20sp"
         android:paddingLeft="10dp"
         android:gravity="center_vertical"
-        android:layout_toRightOf="@+id/item_country_name" />
+        android:layout_toRightOf="@+id/item_name" />
     <net.sunniwell.georgeconversion.view.CustomEditText
-        android:id="@+id/item_money_number"
+        android:id="@+id/item_count"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:textSize="20sp"
