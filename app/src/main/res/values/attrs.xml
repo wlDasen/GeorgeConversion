@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="SliderView">
-        <attr name="letterSize" format="dimension" />
-        <attr name="letterColor" format="color" />
-    </declare-styleable>
-</resources>

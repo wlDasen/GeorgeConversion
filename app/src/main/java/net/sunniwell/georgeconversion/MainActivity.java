@@ -2,6 +2,7 @@ package net.sunniwell.georgeconversion;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Message;
@@ -20,9 +21,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TabHost;
 import android.widget.Toast;
 
-import net.sunniwell.georgeconversion.db.DefaultMoney;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
@@ -38,20 +39,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = "jpd-MainActivity";
-    private NavigationView navigationView;
-    private Button navBtn;
-    private DrawerLayout drawerLayout;
-    private Button refreshBtn;
-    private RecyclerView recyclerLayout;
-    private List<DefaultMoney> mDefMoneyList = new ArrayList<>();
-    private CustomAdapter adapter;
-    private ItemSwipeListener listener;
+    private NavigationView mNavigationView;
+    private Button mNavBtn;
+    private DrawerLayout mDrawerLayout;
+    private Button mRefreshBtn;
+    private RecyclerView mRecyclerLayout;
+    private List<Money> mMoneyList = new ArrayList<>();
+    private CustomAdapter mAdapter;
+    private ItemSwipeListener mListener;
     /**
      * 主程序退出标记
      */
@@ -72,64 +71,36 @@ public class MainActivity extends AppCompatActivity {
      */
     private int swipePostion = -1;
 
-    /**
-     * okhttp请求的返回callback
-     */
-    private Callback callback;
-    private static final String juheAPPKey = "225642569f50a0dbceacd72a94ef3519";
-    private static final String juheMoneyListUrl = "http://op.juhe.cn/onebox/exchange/list?key=" + juheAPPKey;
+    private static final String JUHE_APP_KEY = "225642569f50a0dbceacd72a94ef3519";
+    private static final String JUHE_REAL_MONEY_RAT_URL = "http://op.juhe.cn/onebox/exchange/currency?";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SQLiteDatabase db = Connector.getDatabase();
-        requestDataFromJuHe();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isConfigured = prefs.getBoolean("isConfigured", false);
-        Log.d(TAG, "onCreate: isConfigured:" + isConfigured);
-        if (!isConfigured) {
-            setDefalutMoneyList();
+
+        init();
+        if (!getConfigureFlag()) {
+            setMoneyList();
         }
-        mDefMoneyList = DataSupport.findAll(DefaultMoney.class);
-        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        navigationView = (NavigationView)findViewById(R.id.nav_layout);
-        navigationView.setItemIconTintList(null);
-        navBtn = (Button)findViewById(R.id.toolbar_nav);
-        refreshBtn = (Button)findViewById(R.id.toolbar_refresh);
-        navBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.LEFT);
-            }
-        });
-        refreshBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Refresh", Toast.LENGTH_SHORT).show();
-            }
-        });
-        listener = new ItemSwipeListener() {
+
+        mMoneyList = getMain4Money();
+        mAdapter.notifyDataSetChanged();
+
+        refreshMoneyRate();
+
+        mListener = new ItemSwipeListener() {
             @Override
             public void onItemSwipe(int position) {
                 Log.d(TAG, "onItemSwipe: ");
                 isSwiped = true;
                 swipePostion = position;
                 Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
-                intent.putExtra("countryName", mDefMoneyList.get(position).getName());
-                Log.d(TAG, "onItemSwipe: pos:" + position + "cn:" + mDefMoneyList.get(position).getName());
+                intent.putExtra("countryName", mMoneyList.get(position).getName());
+                Log.d(TAG, "onItemSwipe: pos:" + position + "cn:" + mMoneyList.get(position).getName());
                 startActivity(intent);
             }
         };
-        recyclerLayout = (RecyclerView)findViewById(R.id.recycler_layout);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        recyclerLayout.setLayoutManager(manager);
-        adapter = new CustomAdapter(mDefMoneyList);
-        recyclerLayout.setAdapter(adapter);
-//        recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
-        ItemTouchHelper.Callback callback = new DragItemHelperCallback(listener);
-        ItemTouchHelper helper = new ItemTouchHelper(callback);
-        helper.attachToRecyclerView(recyclerLayout);
     }
 
     @Override
@@ -149,18 +120,145 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy:... ");
     }
 
-    private void setDefalutMoneyList() {
-        Log.d(TAG, "setDefalutMoneyList: ");
-        DefaultMoney china = new DefaultMoney("人民币", "CNY", false, 100);
-        DefaultMoney hongkong = new DefaultMoney("港币", "HKD", false, 85.13);
-        DefaultMoney america = new DefaultMoney("美元", "USD", false, 15.09);
-        DefaultMoney europe = new DefaultMoney("欧元", "EUR", false, 12.82);
-        Log.d(TAG, "setDefalutMoneyList: 1");
-        china.save();
-        hongkong.save();
-        america.save();
-        europe.save();
-        Log.d(TAG, "setDefalutMoneyList: 2");
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.toolbar_nav:
+                drawerLayout.openDrawer(Gravity.LEFT);
+                break;
+            case R.id.toolbar_refresh:
+                Toast.makeText(MainActivity.this, "Refresh", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 获取主界面4种用户选择货币的list信息
+     */
+    private List<Money> getMain4Money() {
+        List<Money> list = DataSupport.where("isMain4Money == ?", "1").find(Money.class);
+        Log.d(TAG, "getMain4Money: query:" + mMoneyList.size());
+        for (int i = 0; i < mMoneyList.size(); i++) {
+            Money money = mMoneyList.get(i);
+            Log.d(TAG, "getMain4Money: " + money);
+        }
+        return list;
+    }
+
+    /**
+     * 打印list数据，仅用于测试
+     * @param list 要打印的list
+     */
+    private void printList(List<Money> list) {
+        for (int i = 0; i < list.size(); i++) {
+            Log.d(TAG, "printList: " + list.get(i));
+        }
+    }
+
+    /**
+     * 刷新主界面货币数据并保存数据库
+     */
+    private void refreshMoneyRate() {
+        List<Money> list = getMain4Money();
+        try {
+            for (int i = 0; i < list.size(); i++) {
+                Money money = list.get(i);
+                if (!"CNY".equals(money.getCode())) {
+                    Response response = HttpUtil.sendPostByOkHttp(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
+                            "CNY", money.getCode());
+                    if (response.isSuccessful()) {
+                        Double[] data = parseRealRateJSON(response.body().string());
+                        Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
+                        money.setBase1CNYToCurrent(data[0]);
+                        money.setBase1CurrentToCNY(data[1]);
+                        money.save();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        printList(list);
+        mMoneyList.clear();
+        mMoneyList.addAll(list);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private Double[] parseRealRateJSON(String jsonData) {
+        Double[] resultStr = new Double[2];
+        try {
+            JSONObject rateObj = new JSONObject(jsonData);
+            int errCode = rateObj.getInt("error_code");
+            Log.d(TAG, "parseRealRateJSON: errCode:" + errCode);
+            if (errCode == 0) {
+                JSONArray resultArr = rateObj.getJSONArray("result");
+                JSONObject fromObj = resultArr.getJSONObject(0);
+                JSONObject toObj = resultArr.getJSONObject(1);
+                resultStr[0] = Double.parseDouble(fromObj.getString("exchange"));
+                resultStr[1] = Double.parseDouble(toObj.getString("exchange"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultStr;
+    }
+
+    /**
+     * 初始化数据库和各种控件
+     */
+    private void init() {
+        // 初始化Litepal数据库
+        SQLiteDatabase db = Connector.getDatabase();
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mNavigationView = (NavigationView)findViewById(R.id.nav_layout);
+        mNavigationView.setItemIconTintList(null);
+        mNavBtn = (Button)findViewById(R.id.toolbar_nav);
+        mRefreshBtn = (Button)findViewById(R.id.toolbar_refresh);
+        mNavBtn.setOnClickListener(this);
+        mRefreshBtn.setOnClickListener(this);
+        mRecyclerLayout = (RecyclerView)findViewById(R.id.recycler_layout);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        mRecyclerLayout.setLayoutManager(manager);
+        mAdapter = new CustomAdapter(mMoneyList);
+        mRecyclerLayout.setAdapter(mAdapter);
+//        recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        ItemTouchHelper.Callback callback = new DragItemHelperCallback(mListener);
+        ItemTouchHelper helper = new ItemTouchHelper(callback);
+        helper.attachToRecyclerView(mRecyclerLayout);
+    }
+
+    /**
+     * 获取默认数据配置标志位
+     * @return true-已经配置过默认数据库 false-没有配置过默认数据库
+     */
+    private boolean getConfigureFlag() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isConfigured = prefs.getBoolean("isConfigured", false);
+        Log.d(TAG, "onCreate: isConfigured:" + isConfigured);
+        return  isConfigured;
+    }
+
+    /**
+     * 设置默认货币的各种信息
+     */
+    private void setMoneyList() {
+        Log.d(TAG, "setMoneyList: ");
+
+        String[] nameArrays = getResources().getStringArray(R.array.name);
+        String[] codeArrays = getResources().getStringArray(R.array.code);
+        int[] isMain4MoneyArrays = getResources().getIntArray(R.array.isMain4Money);
+        String[] base1CNYToCurrentArrays = getResources().getStringArray(R.array.base1CNYToCurrent);
+        String[] base1CurrentToCNYArrays = getResources().getStringArray(R.array.base1CurrentToCNY);
+
+        for (int i = 0; i < nameArrays.length; i++) {
+            boolean isMain4Money = isMain4MoneyArrays[i] == 1 ? true : false;
+            double base1CNYToCurrent = Double.parseDouble(base1CNYToCurrentArrays[i]);
+            double base1CurrentToCNY = Double.parseDouble(base1CurrentToCNYArrays[i]);
+            Money money = new Money(nameArrays[i], codeArrays[i], isMain4Money, base1CNYToCurrent, base1CurrentToCNY);
+            money.save();
+        }
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean("isConfigured", true);
         editor.apply();

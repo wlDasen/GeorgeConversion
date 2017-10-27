@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import net.sunniwell.georgeconversion.MainApplication;
 import net.sunniwell.georgeconversion.R;
-import net.sunniwell.georgeconversion.db.DefaultMoney;
+import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.view.CustomEditText;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>
         implements View.OnClickListener {
-    private List<DefaultMoney> mCountryList = new ArrayList<>();
+    private List<Money> mCountryList = new ArrayList<>();
     public static final String TAG = "jpd-CustomAdapter";
     private View mCurrentItem;
     private CustomEditText mCurrentEdit;
@@ -39,7 +39,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      */
     private static SharedPreferences mPrefs;
 
-    public CustomAdapter(List<DefaultMoney> countryList) {
+    public CustomAdapter(List<Money> countryList) {
         Log.d(TAG, "CustomAdapter: ");
         this.mCountryList = countryList;
         listener = new CustomEditText.OnEditTouchListener() {
