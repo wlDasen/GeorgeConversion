@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMoneyList .addAll(getMain4Money());
         mAdapter.notifyDataSetChanged();
 
-        refreshMoneyRate();
+//        refreshMoneyRate();
 
         mListener = new ItemSwipeListener() {
             @Override
@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.toolbar_refresh:
                 Toast.makeText(MainActivity.this, "Refresh", Toast.LENGTH_SHORT).show();
+                refreshMoneyRate();
                 break;
             default:
                 break;
@@ -162,30 +163,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 刷新主界面货币数据并保存数据库
      */
     private void refreshMoneyRate() {
-        List<Money> list = getMain4Money();
-        try {
-            for (int i = 0; i < list.size(); i++) {
-                Money money = list.get(i);
-                if (!"CNY".equals(money.getCode())) {
-                    Response response = HttpUtil.sendPostByOkHttp(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
-                            "CNY", money.getCode());
-                    Log.d(TAG, "refreshMoneyRate: response:" + response.body().string());
-                    if (response.isSuccessful()) {
-                        Double[] data = parseRealRateJSON(response.body().string());
-                        Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
-                        money.setBase1CNYToCurrent(data[0]);
-                        money.setBase1CurrentToCNY(data[1]);
-                        money.save();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        printList(list);
-        mMoneyList.clear();
-        mMoneyList.addAll(list);
-        mAdapter.notifyDataSetChanged();
+        Log.d(TAG, "refreshMoneyRate: ");
+       new Thread(new Runnable() {
+           @Override
+           public void run() {
+               Log.d(TAG, "refreshMoneyRate: current:" + Thread.currentThread().getId());
+               List<Money> list = getMain4Money();
+               Log.d(TAG, "refreshMoneyRate: size:" + list.size());
+//               printList(list);
+               try {
+                   for (int i = 0; i < list.size(); i++) {
+                       Money money = list.get(i);
+                       if (!"CNY".equals(money.getCode())) {
+                           Response response = HttpUtil.sendPostByOkHttp(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
+                                   "CNY", money.getCode());
+//                           Log.d(TAG, "refreshMoneyRate: response:" + response.body().string());
+                           if (response.isSuccessful()) {
+                               Double[] data = parseRealRateJSON(response.body().string());
+                               Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
+                               money.setBase1CNYToCurrent(data[0]);
+                               money.setBase1CurrentToCNY(data[1]);
+                               money.save();
+                               Log.d(TAG, "run: " + money);
+                           }
+                       }
+                   }
+               } catch (Exception e) {
+                   e.printStackTrace();
+               }
+               mMoneyList.clear();
+               mMoneyList.addAll(list);
+               runOnUiThread(new Runnable() {
+                   @Override
+                   public void run() {
+                       mAdapter.notifyDataSetChanged();
+                   }
+               });
+           }
+       }).start();
     }
 
     private Double[] parseRealRateJSON(String jsonData) {
@@ -224,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerLayout = (RecyclerView)findViewById(R.id.recycler_layout);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         mRecyclerLayout.setLayoutManager(manager);
-        mAdapter = new CustomAdapter(mMoneyList);
+        mAdapter = new CustomAdapter(this, mMoneyList);
         mRecyclerLayout.setAdapter(mAdapter);
 //        recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         ItemTouchHelper.Callback callback = new DragItemHelperCallback(mListener);
@@ -300,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public void onButtonClicked(View view) {
         Button btn = (Button)view;
-        Log.d(TAG, "onButtonClicked: text:" + btn.getText() + ",tag:" + view.getTag());
+        Log.d(TAG, "onButtonClicked: text:" + btn.getText() + ",tag:" + btn.getTag());
+        mAdapter.numberChanged(Integer.parseInt((String)btn.getTag()));
     }
 }

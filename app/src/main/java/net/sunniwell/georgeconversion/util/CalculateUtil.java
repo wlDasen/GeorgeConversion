@@ -5,13 +5,13 @@ package net.sunniwell.georgeconversion.util;
  */
 
 public class CalculateUtil {
-    public static double[] calculate(double[] rates, double baseRate) {
+    public static double[] calculate(double[] rates, double baseRate, double count) {
         double[] data = new double[4];
         for (int i = 0; i < rates.length; i++) {
             if (rates[i] == baseRate) {
-                data[i] = 100;
+                data[i] = count;
             } else {
-                data[i] = 100.0 / baseRate * rates[i];
+                data[i] = count / baseRate * rates[i];
             }
         }
 
