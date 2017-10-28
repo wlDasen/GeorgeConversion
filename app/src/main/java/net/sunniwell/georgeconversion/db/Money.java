@@ -13,6 +13,16 @@ public class Money extends DataSupport {
     private double base1CNYToCurrent;
     private double base1CurrentToCNY;
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    private boolean isSelected;
+
     public Money(String name, String code, boolean isMain4Money, double base1CNYToCurrent,
                  double base1CurrentToCNY) {
         this.name = name;

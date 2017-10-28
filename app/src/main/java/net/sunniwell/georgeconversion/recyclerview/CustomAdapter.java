@@ -14,6 +14,7 @@ import android.widget.TextView;
 import net.sunniwell.georgeconversion.MainApplication;
 import net.sunniwell.georgeconversion.R;
 import net.sunniwell.georgeconversion.db.Money;
+import net.sunniwell.georgeconversion.util.CalculateUtil;
 import net.sunniwell.georgeconversion.view.CustomEditText;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * 全局静态SharedPreferences
      */
     private static SharedPreferences mPrefs;
+    private boolean isDefaultState = true;
 
     public CustomAdapter(List<Money> countryList) {
         Log.d(TAG, "CustomAdapter: ");
@@ -65,7 +67,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         Money money = mMoneyList.get(position);
         holder.moneyName.setText(money.getName());
         holder.moneyCode.setText(money.getCode());
-        holder.moneyCount.setText(String.valueOf(money.getCount()));
         holder.itemView.setTag(position);
         holder.moneyCount.setTag(position);
         holder.moneyCount.setOnEditTouchListener(listener);
@@ -95,6 +96,29 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             holder.moneyCount.obtainFocus();
         } else {
             holder.itemView.setBackgroundResource(R.drawable.item_bg);
+        }
+
+        if (position == mMoneyList.size() - 1) {
+            dealEditData();
+        }
+    }
+
+    private void dealEditData() {
+        Log.d(TAG, "dealEditData: isDefaultState:" + isDefaultState);
+        double[] rates = new double[4];
+        double baseRate = mMoneyList.get(mCurrentItemPosition).getBase1CNYToCurrent();
+        for (int i = 0; i < rates.length; i++) {
+            rates[i] = mMoneyList.get(i).getBase1CNYToCurrent();
+        }
+        if (isDefaultState) {
+            rates = CalculateUtil.calculate(rates, baseRate);
+        }
+        for (int i = 0; i < rates.length; i++) {
+            Log.d(TAG, "dealEditData: rate:" + String.valueOf(rates[i]));
+            mCusEditList.get(i).setText(String.valueOf(rates[i]));
+            if (i == mCurrentItemPosition) {
+                mCusEditList.get(i).moveCursorToEnd();
+            }
         }
     }
 
@@ -154,6 +178,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mCurrentEdit.obtainFocus();
         mMoneyList.get(mCurrentItemPosition).setSelected(true);
         setPreFlag(mCurrentItemPosition);
+
+        dealEditData();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

@@ -78,13 +78,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG, "onCreate: ");
 
         init();
         if (!getConfigureFlag()) {
             setMoneyList();
         }
 
-        mMoneyList = getMain4Money();
+        mMoneyList .addAll(getMain4Money());
         mAdapter.notifyDataSetChanged();
 
         refreshMoneyRate();
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "onResume: ");
         if (isSwiped) {
             Log.d(TAG, "onResume: isSwiped.");
-            adapter.notifyItemChanged(swipePostion);
+            mAdapter.notifyItemChanged(swipePostion);
             isSwiped = false;
         }
     }
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.toolbar_nav:
-                drawerLayout.openDrawer(Gravity.LEFT);
+                mDrawerLayout.openDrawer(Gravity.LEFT);
                 break;
             case R.id.toolbar_refresh:
                 Toast.makeText(MainActivity.this, "Refresh", Toast.LENGTH_SHORT).show();
@@ -138,10 +139,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 获取主界面4种用户选择货币的list信息
      */
     private List<Money> getMain4Money() {
-        List<Money> list = DataSupport.where("isMain4Money == ?", "1").find(Money.class);
-        Log.d(TAG, "getMain4Money: query:" + mMoneyList.size());
-        for (int i = 0; i < mMoneyList.size(); i++) {
-            Money money = mMoneyList.get(i);
+        List<Money> list = DataSupport.where("ismain4money > ?", "0").find(Money.class);
+        Log.d(TAG, "getMain4Money: query:" + list.size());
+        for (int i = 0; i < list.size(); i++) {
+            Money money = list.get(i);
             Log.d(TAG, "getMain4Money: " + money);
         }
         return list;
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!"CNY".equals(money.getCode())) {
                     Response response = HttpUtil.sendPostByOkHttp(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
                             "CNY", money.getCode());
+                    Log.d(TAG, "refreshMoneyRate: response:" + response.body().string());
                     if (response.isSuccessful()) {
                         Double[] data = parseRealRateJSON(response.body().string());
                         Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
@@ -209,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化数据库和各种控件
      */
     private void init() {
+        Log.d(TAG, "init: ");
         // 初始化Litepal数据库
         SQLiteDatabase db = Connector.getDatabase();
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -251,12 +254,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int[] isMain4MoneyArrays = getResources().getIntArray(R.array.isMain4Money);
         String[] base1CNYToCurrentArrays = getResources().getStringArray(R.array.base1CNYToCurrent);
         String[] base1CurrentToCNYArrays = getResources().getStringArray(R.array.base1CurrentToCNY);
-
+        Log.d(TAG, "setMoneyList: len:" + nameArrays.length);
         for (int i = 0; i < nameArrays.length; i++) {
             boolean isMain4Money = isMain4MoneyArrays[i] == 1 ? true : false;
             double base1CNYToCurrent = Double.parseDouble(base1CNYToCurrentArrays[i]);
             double base1CurrentToCNY = Double.parseDouble(base1CurrentToCNYArrays[i]);
             Money money = new Money(nameArrays[i], codeArrays[i], isMain4Money, base1CNYToCurrent, base1CurrentToCNY);
+            Log.d(TAG, "setMoneyList: money:" + money);
             money.save();
         }
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
@@ -264,62 +268,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor.apply();
     }
 
-    private void requestDataFromJuHe() {
-        callback = new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: ");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "网络异常，获取最新汇率失败，建议调整网络重新点击右上角的刷新按钮重新获获取。",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "onResponse: ");
-                parseDataFromJuhe(response.body().string());
-            }
-        };
-        HttpUtil.sendRequest(juheMoneyListUrl, callback);
-    }
-    
-    private void parseDataFromJuhe(String data) {
-        try {
-            JSONObject jsonObj = new JSONObject(data);
-            for (int i = 0; i < jsonObj.length(); i++) {
-                String reason = jsonObj.getString("reason");
-                int errorcode = jsonObj.getInt("error_code");
-                JSONObject result = jsonObj.getJSONObject("result");
-//                Log.d(TAG, "requestDataFromJuHe: reason:" + reason + ",errorcode:" + errorcode
-//                        + ",len:" + result.length());
-                JSONArray list = result.getJSONArray("list");
-//                Log.d(TAG, "requestDataFromJuHe: len:" + list.length());
-                for (int j = 0; j <list.length(); j++) {
-                    JSONObject listObj = (JSONObject)list.get(j);
-                    String name = listObj.getString("name");
-                    String code = listObj.getString("code");
-//                    Log.d(TAG, "requestDataFromJuHe: name:" + name + ",code:" + code);
-                    Money money = new Money();
-                    money.setName(listObj.getString("name"));
-                    money.setCode(listObj.getString("code"));
-                    money.save();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
                 Log.d(TAG, "onBackPressed: open.");
-                drawerLayout.closeDrawers();
+                mDrawerLayout.closeDrawers();
                 return false;
             } else {
                 exit();
