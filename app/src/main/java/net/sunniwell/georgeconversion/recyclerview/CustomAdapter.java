@@ -95,7 +95,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         } else {
             mCusEditList.set(position, holder.moneyCount);
         }
-        mViewList.add(holder.itemView);
+        if (mViewList.size() < 4) {
+            mViewList.add(holder.itemView);
+        } else {
+            mViewList.set(position, holder.itemView);
+        }
 
         int cuPos = getPreFlag();
         if (cuPos == -1) {
@@ -131,7 +135,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     }
 
     private void dealEditData(int enterType) {
-        Log.d(TAG, "dealEditData: isDefaultState:" + isDefaultState);
+//        Log.d(TAG, "dealEditData: isDefaultState:" + isDefaultState);
         Log.d(TAG, "dealEditData: mCurPo:" + mCurrentItemPosition);
         double[] rates = new double[4];
         double baseRate = mMoneyList.get(mCurrentItemPosition).getBase1CNYToCurrent();

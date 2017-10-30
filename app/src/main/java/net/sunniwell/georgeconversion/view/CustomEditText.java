@@ -63,6 +63,7 @@ public class CustomEditText extends EditText implements View.OnFocusChangeListen
     public boolean onTouch(View v, MotionEvent event) {
         Log.d(TAG, "onTouch: ");
         if (listener != null) {
+            Log.d(TAG, "onTouch: listener not null.");
             int tag = (int)getTag();
             listener.onEditTouch(this, tag);
         }
