@@ -30,7 +30,7 @@ public class SectorItemDecoration extends RecyclerView.ItemDecoration {
     private int headerPaddingLeft;
 
     public SectorItemDecoration(Context context, List<SortData> list) {
-        Log.d(TAG, "SectorItemDecoration: ");
+//        Log.d(TAG, "SectorItemDecoration: ");
         mDataList = list;
         headerHeight = context.getResources().getDimensionPixelSize(R.dimen.header_height);
         headerPaddingLeft = context.getResources().getDimensionPixelSize(R.dimen.header_padding_left);

@@ -38,9 +38,8 @@ public class DragItemHelperCallback extends ItemTouchHelper.Callback {
         if (direction == ItemTouchHelper.START) {
             Log.d(TAG, "onSwiped: 往左滑动");
         } else {
-            Log.d(TAG, "onSwiped: 往右滑动");
+//            Log.d(TAG, "onSwiped: 往右滑动");
             if (listener != null) {
-                Log.d(TAG, "onSwiped: ");
                 listener.onItemSwipe(viewHolder.getAdapterPosition());
             }
         }

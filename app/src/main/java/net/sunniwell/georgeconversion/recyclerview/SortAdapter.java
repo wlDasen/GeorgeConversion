@@ -23,7 +23,7 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
 
     public SortAdapter(List<SortData> list) {
         mSortData = list;
-        Log.d(TAG, "SortAdapter: size:" + mSortData.size());
+//        Log.d(TAG, "SortAdapter: size:" + mSortData.size());
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: position:" + position + ",name:" + mSortData.get(position).getName());
+//                Log.d(TAG, "onClick: position:" + position + ",name:" + mSortData.get(position).getName());
             }
         });
     }

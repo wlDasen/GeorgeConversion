@@ -54,6 +54,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private static final int TYPE_CHANGE_ITEM = 1;
     private static final int TYPE_INPUT_NUMBER = 2;
 
+    private static int mRefreshItemCount = 0;
+
+
     public CustomAdapter(Context context, List<Money> countryList) {
         Log.d(TAG, "CustomAdapter: ");
         this.mMoneyList = countryList;
@@ -78,6 +81,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: po:" + position);
+        mRefreshItemCount++;
+        Log.d(TAG, "onBindViewHolder: refreshCount:" + mRefreshItemCount);
         Money money = mMoneyList.get(position);
         holder.moneyName.setText(money.getName());
         holder.moneyCode.setText(money.getCode());
@@ -85,7 +90,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.moneyCount.setTag(position);
         holder.moneyCount.setOnEditTouchListener(mETistener);
         holder.itemView.setOnClickListener(this);
-        mCusEditList.add(holder.moneyCount);
+        if (mCusEditList.size() < 4) {
+            mCusEditList.add(holder.moneyCount);
+        } else {
+            mCusEditList.set(position, holder.moneyCount);
+        }
         mViewList.add(holder.itemView);
 
         int cuPos = getPreFlag();
@@ -106,29 +115,32 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         }
         holder.itemView.setTag(position);
         if (mMoneyList.get(position).isSelected()) {
+            Log.d(TAG, "onBindViewHolder: isSelected.");
             holder.itemView.setBackgroundResource(R.drawable.item_bg_select);
             holder.moneyCount.obtainFocus();
         } else {
+            Log.d(TAG, "onBindViewHolder: not selected.");
             holder.itemView.setBackgroundResource(R.drawable.item_bg);
         }
 
-        if (position == mMoneyList.size() - 1) {
+        if (mRefreshItemCount == 4) {
             dealEditData(TYPE_DO_NOTHING);
+            mCurrentEdit.moveCursorToEnd();
+            mRefreshItemCount = 0;
         }
     }
 
     private void dealEditData(int enterType) {
         Log.d(TAG, "dealEditData: isDefaultState:" + isDefaultState);
+        Log.d(TAG, "dealEditData: mCurPo:" + mCurrentItemPosition);
         double[] rates = new double[4];
         double baseRate = mMoneyList.get(mCurrentItemPosition).getBase1CNYToCurrent();
         for (int i = 0; i < rates.length; i++) {
             rates[i] = mMoneyList.get(i).getBase1CNYToCurrent();
         }
         if (isDefaultState) {
-            Log.d(TAG, "dealEditData: in default State.");
             rates = CalculateUtil.calculate(rates, baseRate, 100);
         } else {
-            Log.d(TAG, "dealEditData: not in default State.");
             if (enterType == TYPE_CHANGE_ITEM) {
                 rates = CalculateUtil.calculate(rates, baseRate, Double.parseDouble(mCurrentEdit.getText().toString()));
             } else {
@@ -136,7 +148,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             }
         }
         for (int i = 0; i < rates.length; i++) {
-            Log.d(TAG, "dealEditData: before optimize:" + String.valueOf(rates[i]));
+//            Log.d(TAG, "dealEditData: before optimize:" + String.valueOf(rates[i]));
             String number = optimizeNumber(String.valueOf(rates[i]));
             mCusEditList.get(i).setText(number);
             if (isDefaultState) {
@@ -148,6 +160,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 mCusEditList.get(i).moveCursorToEnd();
             }
         }
+        printCusEditList(mCusEditList);
+    }
+
+    private void printCusEditList(List<CustomEditText> list) {
+        for (int i = 0; i < list.size(); i++) {
+            Log.d(TAG, "printCusEditList: po:" + i + ",value:" + list.get(i).getText().toString() + ",tag:" + list.get(i).getTag());
+        }
     }
 
     /**
@@ -158,12 +177,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         String str = (number.length() > 10) ? number.substring(0, 10) : number;
         if (str.contains(".")) {
             // 1 123456789.
-            Log.d(TAG, "change: char:" + str.charAt(str.length() - 1));
+//            Log.d(TAG, "change: char:" + str.charAt(str.length() - 1));
             if (str.charAt(str.length() - 1) == '.') {
                 str = str.substring(0, str.length() - 1);
             } else {
                 int dotPosition = str.indexOf(".");
-                Log.d(TAG, "change: dotPo:" + dotPosition);
+//                Log.d(TAG, "change: dotPo:" + dotPosition);
                 String sub = str.substring(dotPosition + 1);
                 // 2 123.0 123.00 123.000
                 if (Integer.parseInt(sub) == 0) {
@@ -171,7 +190,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 } else {
                     int zeroCount = 0;
                     // 最后一位为0 123.230 123.230000
-                    Log.d(TAG, "change: sub:" + sub);
+//                    Log.d(TAG, "change: sub:" + sub);
                     if (sub.charAt(sub.length() - 1) == '0') {
                         for (int i = sub.length() - 1; i >= 0; i--) {
                             if (sub.charAt(i) == '0') {
@@ -180,17 +199,21 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                                 break;
                             }
                         }
-                        Log.d(TAG, "change: zeroCount:" + zeroCount);
+//                        Log.d(TAG, "change: zeroCount:" + zeroCount);
                         str = str.substring(0, str.length() - zeroCount);
                     }
                 }
             }
         }
 
-        Log.d(TAG, "optimizeNumber: after str:" + str);
+//        Log.d(TAG, "optimizeNumber: after str:" + str);
         return str;
     }
 
+    /**
+     * 数字键盘数字被按下的处理
+     * @param number 按下的数字
+     */
     public void numberChanged(int number) {
         Log.d(TAG, "numberChanged: number:" + number);
         if (number >= 0 && number <= 9) { // 数字0~9
@@ -211,13 +234,21 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         if (number == 14) { // 删除键
             if (mBuilder.length() > 0) {
                 mBuilder.deleteCharAt(mBuilder.length() - 1);
-                dealEditData(TYPE_INPUT_NUMBER);
+                Log.d(TAG, "numberChanged: mBuild:" + mBuilder.toString());
             }
             if (mBuilder.length() == 0) {
                 isDefaultState = true;
-                dealEditData(TYPE_INPUT_NUMBER);
             }
+            dealEditData(TYPE_INPUT_NUMBER);
         }
+    }
+
+    /**
+     * 长按删除键处理接口
+     */
+    public void longPressDeleteButton() {
+        isDefaultState = true;
+        dealEditData(TYPE_INPUT_NUMBER);
     }
 
     @Override
@@ -260,7 +291,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      */
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "onClick: ");
+        Log.d(TAG, "onClick: ........................");
+        Log.d(TAG, "onClick: clickTag:" + v.getTag() + ",oldItemTag:" + mCurrentItem.getTag()
+            + ", oldCusEditTag:" + mCurrentEdit.getTag() + ",text:" + mCurrentEdit.getText());
         if (mCurrentItem != null) {
             mCurrentItem.setBackgroundResource(R.drawable.item_bg);
             mMoneyList.get(mCurrentItemPosition).setSelected(false);
@@ -272,7 +305,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mCurrentItem = v;
         mCurrentItemPosition = (int)v.getTag();
         mCurrentEdit = mCusEditList.get(mCurrentItemPosition);
-        Log.d(TAG, "onClick: text:" + mCurrentEdit.getText());
         mCurrentEdit.obtainFocus();
         mMoneyList.get(mCurrentItemPosition).setSelected(true);
         setPreFlag(mCurrentItemPosition);
@@ -283,6 +315,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             Log.d(TAG, "onClick: builder:" + mBuilder.toString());
         }
         dealEditData(TYPE_CHANGE_ITEM);
+        Log.d(TAG, "onClick: curPos:" + mCurrentItemPosition + ",curItemTag:" + mCurrentItem.getTag()
+            + ",curCusEditTag:" + mCurrentEdit.getId() + ",text:" + mCurrentEdit.getText().toString());
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

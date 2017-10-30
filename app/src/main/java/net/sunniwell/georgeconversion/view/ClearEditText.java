@@ -22,29 +22,29 @@ public class ClearEditText extends EditText implements View.OnFocusChangeListene
 
     public ClearEditText(Context context) {
         super(context);
-        Log.d(TAG, "ClearEditText: 1");
+//        Log.d(TAG, "ClearEditText: 1");
     }
 
     public ClearEditText(Context context, AttributeSet attrs) {
         this(context, attrs, android.R.attr.editTextStyle);
-        Log.d(TAG, "ClearEditText: 2");
+//        Log.d(TAG, "ClearEditText: 2");
     }
 
     public ClearEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        Log.d(TAG, "ClearEditText: 3");
+//        Log.d(TAG, "ClearEditText: 3");
         init();
     }
 
     private void init() {
-        Log.d(TAG, "init: ");
+//        Log.d(TAG, "init: ");
         mDrawable = getCompoundDrawables()[2];
         if (mDrawable == null) {
             mDrawable = getResources().getDrawable(R.drawable.emotionstore_progresscancelbtn);
         }
         mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth(), mDrawable.getIntrinsicHeight());
-        Log.d(TAG, "init: width:" + mDrawable.getIntrinsicWidth()
-                + ",height:" + mDrawable.getIntrinsicHeight());
+//        Log.d(TAG, "init: width:" + mDrawable.getIntrinsicWidth()
+//                + ",height:" + mDrawable.getIntrinsicHeight());
         setClearIconVisible(false);
         setOnFocusChangeListener(this);
         addTextChangedListener(this);
@@ -64,7 +64,7 @@ public class ClearEditText extends EditText implements View.OnFocusChangeListene
     }
 
     private void setClearIconVisible(boolean visible) {
-        Log.d(TAG, "setClearIconVisible: visible:" + visible);
+//        Log.d(TAG, "setClearIconVisible: visible:" + visible);
         Drawable right = visible ? mDrawable : null;
         setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1], right
                 , getCompoundDrawables()[3]);
@@ -72,22 +72,22 @@ public class ClearEditText extends EditText implements View.OnFocusChangeListene
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        Log.d(TAG, "beforeTextChanged: ");
+//        Log.d(TAG, "beforeTextChanged: ");
     }
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        Log.d(TAG, "onTextChanged: s:" + charSequence.toString());
+//        Log.d(TAG, "onTextChanged: s:" + charSequence.toString());
         setClearIconVisible(getText().length() > 0);
     }
 
     @Override
     public void afterTextChanged(Editable editable) {
-        Log.d(TAG, "afterTextChanged: ");
+//        Log.d(TAG, "afterTextChanged: ");
     }
 
     @Override
     public void onFocusChange(View view, boolean b) {
-        Log.d(TAG, "onFocusChange: ");
+//        Log.d(TAG, "onFocusChange: ");
     }
 }

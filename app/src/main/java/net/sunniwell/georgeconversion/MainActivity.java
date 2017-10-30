@@ -41,7 +41,7 @@ import java.util.List;
 
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
     public static final String TAG = "jpd-MainActivity";
     private NavigationView mNavigationView;
     private Button mNavBtn;
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Money> mMoneyList = new ArrayList<>();
     private CustomAdapter mAdapter;
     private ItemSwipeListener mListener;
+    private Button mDeleteBtn;
     /**
      * 主程序退出标记
      */
@@ -66,10 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * item右滑状态
      */
     private boolean isSwiped = false;
-    /**
-     * 右滑item位置
-     */
-    private int swipePostion = -1;
 
     private static final String JUHE_APP_KEY = "225642569f50a0dbceacd72a94ef3519";
     private static final String JUHE_REAL_MONEY_RAT_URL = "http://op.juhe.cn/onebox/exchange/currency?";
@@ -89,19 +86,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter.notifyDataSetChanged();
 
 //        refreshMoneyRate();
-
-        mListener = new ItemSwipeListener() {
-            @Override
-            public void onItemSwipe(int position) {
-                Log.d(TAG, "onItemSwipe: ");
-                isSwiped = true;
-                swipePostion = position;
-                Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
-                intent.putExtra("countryName", mMoneyList.get(position).getName());
-                Log.d(TAG, "onItemSwipe: pos:" + position + "cn:" + mMoneyList.get(position).getName());
-                startActivity(intent);
-            }
-        };
     }
 
     @Override
@@ -109,8 +93,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         Log.d(TAG, "onResume: ");
         if (isSwiped) {
-            Log.d(TAG, "onResume: isSwiped.");
-            mAdapter.notifyItemChanged(swipePostion);
+//            Log.d(TAG, "onResume: isSwiped.");
+            mAdapter.notifyDataSetChanged();
             isSwiped = false;
         }
     }
@@ -236,12 +220,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRefreshBtn = (Button)findViewById(R.id.toolbar_refresh);
         mNavBtn.setOnClickListener(this);
         mRefreshBtn.setOnClickListener(this);
+        mDeleteBtn = (Button)findViewById(R.id.button_delete);
+        mDeleteBtn.setOnLongClickListener(this);
         mRecyclerLayout = (RecyclerView)findViewById(R.id.recycler_layout);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         mRecyclerLayout.setLayoutManager(manager);
         mAdapter = new CustomAdapter(this, mMoneyList);
         mRecyclerLayout.setAdapter(mAdapter);
 //        recyclerLayout.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        mListener = new ItemSwipeListener() {
+            @Override
+            public void onItemSwipe(int position) {
+                isSwiped = true;
+                Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
+                intent.putExtra("countryName", mMoneyList.get(position).getCode());
+//                Log.d(TAG, "onItemSwipe: pos:" + position);
+//                Log.d(TAG, "onItemSwipe: money:" + mMoneyList.get(position).getCode());
+                startActivity(intent);
+            }
+        };
         ItemTouchHelper.Callback callback = new DragItemHelperCallback(mListener);
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(mRecyclerLayout);
@@ -317,5 +314,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button btn = (Button)view;
         Log.d(TAG, "onButtonClicked: text:" + btn.getText() + ",tag:" + btn.getTag());
         mAdapter.numberChanged(Integer.parseInt((String)btn.getTag()));
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        Log.d(TAG, "onLongClick: ");
+        mAdapter.longPressDeleteButton();
+        return true;
     }
 }

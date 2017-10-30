@@ -33,12 +33,12 @@ public class SliderView extends View {
 
     public SliderView(Context context) {
         this(context, null);
-        Log.d(TAG, "SliderView: ");
+//        Log.d(TAG, "SliderView: ");
     }
 
     public SliderView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        Log.d(TAG, "SliderView: ");
+//        Log.d(TAG, "SliderView: ");
     }
 
     public SliderView(Context context, AttributeSet attrs, int defStyleAttr) {

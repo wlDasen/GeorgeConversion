@@ -165,6 +165,7 @@
             android:tag="0"
             android:textColor="#0000ff"/>
         <Button
+            android:id="@+id/button_delete"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
