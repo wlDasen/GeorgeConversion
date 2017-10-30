@@ -18,6 +18,8 @@ import net.sunniwell.georgeconversion.MainApplication;
 public class CustomEditText extends EditText implements View.OnFocusChangeListener, View.OnTouchListener{
     private static final String TAG = "jpd-CET";
     private OnEditTouchListener listener;
+    private float xDown;
+    private float xUp;
 
     public CustomEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -59,13 +61,27 @@ public class CustomEditText extends EditText implements View.OnFocusChangeListen
 //        Log.d(TAG, "onFocusChange: text:" + hasFocus);
     }
 
+
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        Log.d(TAG, "onTouch: ");
-        if (listener != null) {
-            Log.d(TAG, "onTouch: listener not null.");
-            int tag = (int)getTag();
-            listener.onEditTouch(this, tag);
+//        Log.d(TAG, "onTouch: ");
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                xDown = event.getRawX();
+                Log.d(TAG, "onTouch: xDown:" + xDown);
+                break;
+            case MotionEvent.ACTION_UP:
+                xUp = event.getRawX();
+                Log.d(TAG, "onTouch: xUp:" + xUp);
+                if (xUp == xDown) {
+                    if (listener != null) {
+                        Log.d(TAG, "onTouch: listener not null.");
+                        int tag = (int) getTag();
+                        listener.onEditTouch(this, tag);
+                    }
+                }
+                break;
         }
         return true;
     }
