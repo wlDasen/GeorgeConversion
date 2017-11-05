@@ -23,23 +23,23 @@ public class CustomEditText extends EditText implements View.OnFocusChangeListen
 
     public CustomEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-//        Log.d(TAG, "CustomEditText: 3");
+        Log.d(TAG, "CustomEditText: 3");
         setOnFocusChangeListener(this);
         setOnTouchListener(this);
     }
 
     public CustomEditText(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-//        Log.d(TAG, "CustomEditText: 2");
+        Log.d(TAG, "CustomEditText: 2");
     }
 
     public CustomEditText(Context context) {
         this(context, null);
-//        Log.d(TAG, "CustomEditText: 1");
+        Log.d(TAG, "CustomEditText: 1");
     }
 
     public void obtainFocus() {
-//        Log.d(TAG, "obtainFocus: ");
+        Log.d(TAG, "obtainFocus: ");
         setFocusable(true);
         setFocusableInTouchMode(true);
         requestFocus();
@@ -47,25 +47,25 @@ public class CustomEditText extends EditText implements View.OnFocusChangeListen
     }
 
     public void loseFocus() {
-//        Log.d(TAG, "loseFocus: ");
+        Log.d(TAG, "loseFocus: ");
         clearFocus();
     }
 
     public void moveCursorToEnd() {
-//        Log.d(TAG, "moveCursorToEnd: ");
+        Log.d(TAG, "moveCursorToEnd: ");
         setSelection(getText().length());
     }
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-//        Log.d(TAG, "onFocusChange: text:" + hasFocus);
+        Log.d(TAG, "onFocusChange: text:" + hasFocus);
     }
 
 
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-//        Log.d(TAG, "onTouch: ");
+        Log.d(TAG, "onTouch: ");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 xDown = event.getRawX();

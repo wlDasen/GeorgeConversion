@@ -33,12 +33,12 @@ public class SliderView extends View {
 
     public SliderView(Context context) {
         this(context, null);
-//        Log.d(TAG, "SliderView: ");
+        Log.d(TAG, "SliderView: ");
     }
 
     public SliderView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-//        Log.d(TAG, "SliderView: ");
+        Log.d(TAG, "SliderView: ");
     }
 
     public SliderView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -46,7 +46,7 @@ public class SliderView extends View {
         Log.d(TAG, "SliderView: ");
         mLetterPaddingTop = context.getResources().getDimensionPixelSize(R.dimen.letter_top_padding);
         mLetterPaddingBottom = context.getResources().getDimensionPixelSize(R.dimen.letter_bottom_padding);
-//        Log.d(TAG, "SliderView: TP:" + mLetterPaddingTop + ",BP:" + mLetterPaddingBottom);
+        Log.d(TAG, "SliderView: TP:" + mLetterPaddingTop + ",BP:" + mLetterPaddingBottom);
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SliderView);
         mLetterSize = ta.getDimensionPixelSize(R.styleable.SliderView_letterSize, 25);
         mLetterColor = ta.getColor(R.styleable.SliderView_letterColor, Color.BLACK);
@@ -55,7 +55,7 @@ public class SliderView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-//        Log.d(TAG, "onDraw: w:" + canvas.getWidth() + ",h:" + canvas.getHeight());
+        Log.d(TAG, "onDraw: w:" + canvas.getWidth() + ",h:" + canvas.getHeight());
         int itemHeight = (getHeight() - mLetterPaddingBottom - mLetterPaddingTop) / letters.length;
         for (int i = 0; i < letters.length; i++) {
             mLetterPaint = new Paint();
@@ -80,9 +80,9 @@ public class SliderView extends View {
         // Down:0 UP:1 MOVE:2 CANCEL:3
         int action = event.getAction();
         float positionY = event.getY();
-//        Log.d(TAG, "dispatchTouchEvent: action:" + action + ",y:" + positionY);
+        Log.d(TAG, "dispatchTouchEvent: action:" + action + ",y:" + positionY);
         int c = (int)((positionY - mLetterPaddingTop) / (getHeight() - mLetterPaddingTop - mLetterPaddingBottom) * letters.length);
-//        Log.d(TAG, "dispatchTouchEvent: c:" + c);
+        Log.d(TAG, "dispatchTouchEvent: c:" + c);
         int oldChoose = choose;
 
         switch (action) {

@@ -37,17 +37,37 @@ import java.util.List;
 import java.util.Map;
 
 public class SelectMoneyActivity extends AppCompatActivity {
-    private static final String TAG = "SelectMoneyActivity";
+    private static final String TAG = "jpd-SMActivity";
     private ClearEditText mEditText;
     private List<SortData> mDataList;
     private List<SortData> originalList;
+    /**
+     * RecyclerView实例
+     */
     private RecyclerView mRecyclerView;
+    /**
+     * RecyclerView的布局管理器
+     */
+    private LinearLayoutManager mManager;
     private SortAdapter mAdapter;
     private SliderView.OnTouchingLetterChangedListener listener;
     private SliderView mSliderView;
     private TextView overlay;
     private Map<String, Integer> letterPMap = new HashMap<>();
     private PinyinComparator mComparator;
+    /**
+     * 点击数字索引时，RecyclerView滚动屏幕后面不可见的item到顶端时的标志位，供onScrolled监听接口使用
+     * true－有屏幕后面的item需要滚动到屏幕最顶端
+     */
+    private boolean moveFlag;
+    /**
+     * 点击数字索引时，记录要滚动的位置，供onScroll监听接口使用
+     */
+    private int movePosition;
+    /**
+     * 分组标题栏的高度
+     */
+    private int headerHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +91,30 @@ public class SelectMoneyActivity extends AppCompatActivity {
 //        printDataList(mDataList);
         setLetterPosition();
         mRecyclerView = (RecyclerView)findViewById(R.id.rclv);
-        final LinearLayoutManager manger = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(manger);
+        mManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mManager);
         mAdapter = new SortAdapter(mDataList);
         mRecyclerView.setAdapter(mAdapter);
+        // 设置RecyclerView的滚动监听接口
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (moveFlag) {
+                    moveFlag = false;
+                    int n = movePosition - mManager.findFirstVisibleItemPosition();
+                    if (n >= 0 && n < mRecyclerView.getChildCount()) {
+                        int top = mRecyclerView.getChildAt(n).getTop();
+                        mRecyclerView.scrollBy(0, top - headerHeight);
+                    }
+                }
+
+            }
+        });
 
         mRecyclerView.addItemDecoration(new SectorItemDecoration(this, mDataList));
         mRecyclerView.addItemDecoration(new CustomItemDecoration(this));
+        headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
 
         mEditText = (ClearEditText)findViewById(R.id.cet);
         mEditText.addTextChangedListener(new TextWatcher() {
@@ -213,14 +250,11 @@ public class SelectMoneyActivity extends AppCompatActivity {
                 Integer position = letterPMap.get(s);
                 if (position != null) {
                     Log.d(TAG, "onTouchingLetterChanged: position:" + position);
-                    mRecyclerView.scrollToPosition(position.intValue());
                 } else {
                     position = getClosestPosition(s);
                     Log.d(TAG, "onTouchingLetterChanged: closest po:" + position);
-                    if (position != -1) {
-                        mRecyclerView.scrollToPosition(position.intValue());
-                    }
                 }
+                moveToPosition(position.intValue());
                 overlay.setVisibility(View.VISIBLE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -231,6 +265,27 @@ public class SelectMoneyActivity extends AppCompatActivity {
             }
         };
         mSliderView.setOnTouchingLetterChangedListener(listener);
+    }
+
+    /**
+     * 字母索引点击后的滚动位置处理接口
+     * @param position item在RecyclerView中的位置
+     */
+    private void moveToPosition(int position) {
+        // 获取屏幕第一个可见Item的位置
+        int firstVisibleItem = mManager.findFirstVisibleItemPosition();
+        // 获取屏幕最后一个可见Item的位置
+        int lastVisibleItem = mManager.findLastVisibleItemPosition();
+        if (position <= firstVisibleItem) { // 需要滚动位置在第一个可见位置之前
+            mRecyclerView.scrollToPosition(position);
+        } else if (position <= lastVisibleItem) { // 需要滚动位置在第一个和最后一个可见位置之间
+            int top = mRecyclerView.getChildAt(position - firstVisibleItem).getTop();
+            mRecyclerView.scrollBy(0, top - headerHeight);
+        } else { // 需要滚动位置在最后一个可见位置之后
+            moveFlag = true;
+            movePosition = position;
+            mRecyclerView.scrollToPosition(position);
+        }
     }
 
     /**
