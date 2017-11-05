@@ -2,6 +2,7 @@ package net.sunniwell.georgeconversion.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +24,12 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
 
     public SortAdapter(List<SortData> list) {
         mSortData = list;
-//        Log.d(TAG, "SortAdapter: size:" + mSortData.size());
+        Log.d(TAG, "SortAdapter: size:" + mSortData.size());
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.d(TAG, "onCreateViewHolder: ");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item, parent, false);
         return new ViewHolder(view);
     }
@@ -39,7 +41,7 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Log.d(TAG, "onClick: position:" + position + ",name:" + mSortData.get(position).getName());
+                Log.d(TAG, "onClick: position:" + position + ",name:" + mSortData.get(position).getName());
             }
         });
     }
