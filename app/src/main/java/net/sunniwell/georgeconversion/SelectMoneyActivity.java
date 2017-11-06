@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -55,6 +56,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
     private TextView overlay;
     private Map<String, Integer> letterPMap = new HashMap<>();
     private PinyinComparator mComparator;
+    private Button backBtn;
     /**
      * 点击数字索引时，RecyclerView滚动屏幕后面不可见的item到顶端时的标志位，供onScrolled监听接口使用
      * true－有屏幕后面的item需要滚动到屏幕最顶端
@@ -75,70 +77,10 @@ public class SelectMoneyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_select_money);
 
         //        pinyin4jTest();
-        String[] dataArray = getResources().getStringArray(R.array.name);
-        initData(dataArray);
-        Log.d(TAG, "onCreate: Before sort....");
-//        printDataList(mDataList);
-        Log.d(TAG, "onCreate: After sort...");
-        mSliderView = (SliderView)findViewById(R.id.slider_view);
-        mComparator = new PinyinComparator();
+        initData();
+        initView();
         registerListener();
         initOverlay();
-        Collections.sort(mDataList, mComparator);
-        originalList = new ArrayList<>();
-        originalList.addAll(mDataList);
-        Log.d(TAG, "onCreate: origin:" + originalList.size());
-//        printDataList(mDataList);
-        setLetterPosition();
-        mRecyclerView = (RecyclerView)findViewById(R.id.rclv);
-        mManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mManager);
-        mAdapter = new SortAdapter(mDataList);
-        mRecyclerView.setAdapter(mAdapter);
-        // 设置RecyclerView的滚动监听接口
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (moveFlag) {
-                    moveFlag = false;
-                    int n = movePosition - mManager.findFirstVisibleItemPosition();
-                    if (n >= 0 && n < mRecyclerView.getChildCount()) {
-                        int top = mRecyclerView.getChildAt(n).getTop();
-                        mRecyclerView.scrollBy(0, top - headerHeight);
-                    }
-                }
-
-            }
-        });
-
-        mRecyclerView.addItemDecoration(new SectorItemDecoration(this, mDataList));
-        mRecyclerView.addItemDecoration(new CustomItemDecoration(this));
-        headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
-
-        mEditText = (ClearEditText)findViewById(R.id.cet);
-        mEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Log.d(TAG, "beforeTextChanged: ");
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Log.d(TAG, "onTextChanged: s:" + charSequence.toString());
-                searchData(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                Log.d(TAG, "afterTextChanged: ");
-                if (TextUtils.isEmpty(editable.toString())) {
-                    mDataList.clear();
-                    mDataList.addAll(originalList);
-                    mAdapter.notifyDataSetChanged();
-                }
-            }
-        });
     }
     /**
      * 搜索数据
@@ -199,15 +141,27 @@ public class SelectMoneyActivity extends AppCompatActivity {
 
     /**
      * RecyclerView的填充数据
-     * @param data 数据数组
-     * @return 填充之后的List数据
      */
-    private List<SortData> initData(String[] data) {
+    private void initData() {
+        initAdapterData();
+        headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
+        mComparator = new PinyinComparator();
+        Collections.sort(mDataList, mComparator);
+        originalList = new ArrayList<>();
+        originalList.addAll(mDataList);
+        setLetterPosition();
+    }
+
+    /**
+     * 初始化RecyclerView的适配器数据
+     */
+    private void initAdapterData() {
+        String[] dataArray = getResources().getStringArray(R.array.name);
         mDataList = new ArrayList<>();
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < dataArray.length; i++) {
             SortData sortData = new SortData();
-            sortData.setName(data[i]);
-            String pinyin = PinyinUtils.getPinyin(data[i]);
+            sortData.setName(dataArray[i]);
+            String pinyin = PinyinUtils.getPinyin(dataArray[i]);
 //            Log.d(TAG, "initData: pinyin:" + pinyin);
             sortData.setLetters(pinyin.toLowerCase());
             String letter = pinyin.substring(0, 1).toUpperCase();
@@ -218,7 +172,19 @@ public class SelectMoneyActivity extends AppCompatActivity {
             }
             mDataList.add(sortData);
         }
-        return mDataList;
+    }
+
+    private void initView() {
+        mSliderView = (SliderView)findViewById(R.id.slider_view);
+        mRecyclerView = (RecyclerView)findViewById(R.id.rclv);
+        mManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mManager);
+        mAdapter = new SortAdapter(mDataList);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new SectorItemDecoration(this, mDataList));
+        mRecyclerView.addItemDecoration(new CustomItemDecoration(this));
+        mEditText = (ClearEditText)findViewById(R.id.cet);
+        backBtn = (Button)findViewById(R.id.back);
     }
 
     /**
@@ -265,6 +231,51 @@ public class SelectMoneyActivity extends AppCompatActivity {
             }
         };
         mSliderView.setOnTouchingLetterChangedListener(listener);
+        // 设置RecyclerView的滚动监听接口
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (moveFlag) {
+                    moveFlag = false;
+                    int n = movePosition - mManager.findFirstVisibleItemPosition();
+                    if (n >= 0 && n < mRecyclerView.getChildCount()) {
+                        int top = mRecyclerView.getChildAt(n).getTop();
+                        mRecyclerView.scrollBy(0, top - headerHeight);
+                    }
+                }
+
+            }
+        });
+        mEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.d(TAG, "beforeTextChanged: ");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.d(TAG, "onTextChanged: s:" + charSequence.toString());
+                searchData(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                Log.d(TAG, "afterTextChanged: ");
+                if (TextUtils.isEmpty(editable.toString())) {
+                    mDataList.clear();
+                    mDataList.addAll(originalList);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: click back button.");
+                finish();
+            }
+        });
     }
 
     /**

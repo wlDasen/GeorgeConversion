@@ -1,5 +1,6 @@
 package net.sunniwell.georgeconversion;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -112,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mDrawerLayout.openDrawer(Gravity.LEFT);
                 break;
             case R.id.toolbar_refresh:
-                Toast.makeText(MainActivity.this, "Refresh", Toast.LENGTH_SHORT).show();
                 refreshMoneyRate();
                 break;
             default:
@@ -148,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void refreshMoneyRate() {
         Log.d(TAG, "refreshMoneyRate: ");
+        // 刷新动画
+        refreshAnim();
        new Thread(new Runnable() {
            @Override
            public void run() {
@@ -185,6 +187,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                });
            }
        }).start();
+    }
+
+    /**
+     * 刷新旋转动画-1秒钟旋转360度
+     */
+    private void refreshAnim() {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mRefreshBtn, "rotation", 0f, 360f);
+        animator.setDuration(1000);
+        animator.start();
     }
 
     private Double[] parseRealRateJSON(String jsonData) {
