@@ -30,6 +30,7 @@ import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
 import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
 import net.sunniwell.georgeconversion.util.HttpUtil;
+import net.sunniwell.georgeconversion.util.PinyinUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -124,7 +125,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 获取主界面4种用户选择货币的list信息
      */
     private List<Money> getMain4Money() {
-        List<Money> list = DataSupport.where("ismain4money > ?", "0").find(Money.class);
+        List<Money> list = DataSupport
+                .where("ismain4money > ? and firstletter != ?", "0", "#")
+                .find(Money.class);
         Log.d(TAG, "getMain4Money: query:" + list.size());
         for (int i = 0; i < list.size(); i++) {
             Money money = list.get(i);
@@ -244,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onItemSwipe(int position) {
                 isSwiped = true;
                 Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
-                intent.putExtra("countryName", mMoneyList.get(position).getCode());
+                intent.putExtra("money_name", mMoneyList.get(position).getName());
 //                Log.d(TAG, "onItemSwipe: pos:" + position);
 //                Log.d(TAG, "onItemSwipe: money:" + mMoneyList.get(position).getCode());
                 startActivity(intent);
@@ -275,14 +278,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String[] nameArrays = getResources().getStringArray(R.array.name);
         String[] codeArrays = getResources().getStringArray(R.array.code);
         int[] isMain4MoneyArrays = getResources().getIntArray(R.array.isMain4Money);
+        int[] isEverChoosedArrays = getResources().getIntArray(R.array.isEverChoosed);
         String[] base1CNYToCurrentArrays = getResources().getStringArray(R.array.base1CNYToCurrent);
         String[] base1CurrentToCNYArrays = getResources().getStringArray(R.array.base1CurrentToCNY);
         Log.d(TAG, "setMoneyList: len:" + nameArrays.length);
         for (int i = 0; i < nameArrays.length; i++) {
             boolean isMain4Money = isMain4MoneyArrays[i] == 1 ? true : false;
+            boolean isEverChoosed = isEverChoosedArrays[i] == 1 ? true : false;
             double base1CNYToCurrent = Double.parseDouble(base1CNYToCurrentArrays[i]);
             double base1CurrentToCNY = Double.parseDouble(base1CurrentToCNYArrays[i]);
-            Money money = new Money(nameArrays[i], codeArrays[i], isMain4Money, base1CNYToCurrent, base1CurrentToCNY);
+            Money money = new Money(nameArrays[i], codeArrays[i], isMain4Money, base1CNYToCurrent, base1CurrentToCNY
+                , isEverChoosed);
+            String pinyin = PinyinUtils.getPinyin(nameArrays[i]);
+//            Log.d(TAG, "initData: pinyin:" + pinyin);
+            money.setLetters(pinyin.toLowerCase());
+            String letter = pinyin.substring(0, 1).toUpperCase();
+            if (letter.matches("[A-Z]")) {
+                money.setFirstLetter(letter);
+            } else {
+                money.setFirstLetter("#");
+            }
+            if (money.isEverChoosed()) {
+                Money chooseMoney = null;
+                try {
+                    chooseMoney = (Money)money.clone();
+                    chooseMoney.setEverChoosed(true);
+                    chooseMoney.setFirstLetter("#");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                chooseMoney.save();
+            }
+
             Log.d(TAG, "setMoneyList: money:" + money);
             money.save();
         }

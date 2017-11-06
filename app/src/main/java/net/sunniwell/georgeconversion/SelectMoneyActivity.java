@@ -1,5 +1,6 @@
 package net.sunniwell.georgeconversion;
 
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +23,7 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
-import net.sunniwell.georgeconversion.db.SortData;
+import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.recyclerview.CustomItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.SectorItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.SortAdapter;
@@ -30,6 +31,8 @@ import net.sunniwell.georgeconversion.util.PinyinComparator;
 import net.sunniwell.georgeconversion.util.PinyinUtils;
 import net.sunniwell.georgeconversion.view.ClearEditText;
 import net.sunniwell.georgeconversion.view.SliderView;
+
+import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,8 +43,8 @@ import java.util.Map;
 public class SelectMoneyActivity extends AppCompatActivity {
     private static final String TAG = "jpd-SMActivity";
     private ClearEditText mEditText;
-    private List<SortData> mDataList;
-    private List<SortData> originalList;
+    private List<Money> mDataList;
+    private List<Money> originalList;
     /**
      * RecyclerView实例
      */
@@ -87,13 +90,13 @@ public class SelectMoneyActivity extends AppCompatActivity {
      * @param str 要搜索的数据
      */
     private void searchData(String str) {
-        List<SortData> filterData = new ArrayList<>();
+        List<Money> filterData = new ArrayList<>();
 
         if (!TextUtils.isEmpty(str)) {
             Log.d(TAG, "searchData: not empty..");
             filterData.clear();
             Log.d(TAG, "searchData: oringin:" + originalList.size());
-            for (SortData data : originalList) {
+            for (Money data : originalList) {
                 String pinyin = PinyinUtils.getPinyin(str);
                 Log.d(TAG, "searchData: pinyin:" + pinyin + ",letters:" + data.getLetters()
                         + ",name:" + data.getName());
@@ -104,7 +107,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
 
             Collections.sort(filterData, mComparator);
             Log.d(TAG, "searchData: fLength:" + filterData.size());
-//          printDataList(filterData);
+//            printDataList(filterData);
             mDataList.clear();
             mDataList.addAll(filterData);
             Log.d(TAG, "searchData: mLength:" + mDataList.size());
@@ -132,7 +135,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
      * 打印RecyclerView数据
      * @param dt 要打印的数据
      */
-    private void printDataList(List<SortData> dt) {
+    private void printDataList(List<Money> dt) {
         for (int i = 0; i < dt.size(); i++) {
             Log.d(TAG, "printDataList: name:" + dt.get(i).getName() + ",letters:" + dt.get(i).getLetters()
                     + "firstLetter:" + dt.get(i).getFirstLetter());
@@ -147,6 +150,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
         headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
         mComparator = new PinyinComparator();
         Collections.sort(mDataList, mComparator);
+        printDataList(mDataList);
         originalList = new ArrayList<>();
         originalList.addAll(mDataList);
         setLetterPosition();
@@ -156,30 +160,17 @@ public class SelectMoneyActivity extends AppCompatActivity {
      * 初始化RecyclerView的适配器数据
      */
     private void initAdapterData() {
-        String[] dataArray = getResources().getStringArray(R.array.name);
-        mDataList = new ArrayList<>();
-        for (int i = 0; i < dataArray.length; i++) {
-            SortData sortData = new SortData();
-            sortData.setName(dataArray[i]);
-            String pinyin = PinyinUtils.getPinyin(dataArray[i]);
-//            Log.d(TAG, "initData: pinyin:" + pinyin);
-            sortData.setLetters(pinyin.toLowerCase());
-            String letter = pinyin.substring(0, 1).toUpperCase();
-            if (letter.matches("[A-Z]")) {
-                sortData.setFirstLetter(letter);
-            } else {
-                sortData.setFirstLetter("#");
-            }
-            mDataList.add(sortData);
-        }
+        mDataList = DataSupport.findAll(Money.class);
     }
 
     private void initView() {
+        Intent intent = getIntent();
+        String selectMoney = intent.getStringExtra("money_name");
         mSliderView = (SliderView)findViewById(R.id.slider_view);
         mRecyclerView = (RecyclerView)findViewById(R.id.rclv);
         mManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mManager);
-        mAdapter = new SortAdapter(mDataList);
+        mAdapter = new SortAdapter(mDataList, selectMoney);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(new SectorItemDecoration(this, mDataList));
         mRecyclerView.addItemDecoration(new CustomItemDecoration(this));
@@ -305,7 +296,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
      * @return 根据算法返回距离字母索引最近的字母
      */
     private Integer getClosestPosition(String letter) {
-        String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
+        String[] letters = {"#","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
                 , "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
         int position = -1;
         int returnPo = -1;

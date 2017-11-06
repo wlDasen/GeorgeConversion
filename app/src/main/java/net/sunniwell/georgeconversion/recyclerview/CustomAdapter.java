@@ -90,6 +90,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.moneyCount.setTag(position);
         holder.moneyCount.setOnEditTouchListener(mETistener);
         holder.itemView.setOnClickListener(this);
+        Log.d(TAG, "onBindViewHolder: position:" + position);
         if (mCusEditList.size() < 4) {
             mCusEditList.add(holder.moneyCount);
         } else {

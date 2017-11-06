@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.sunniwell.georgeconversion.R;
-import net.sunniwell.georgeconversion.db.SortData;
+import net.sunniwell.georgeconversion.db.Money;
 
 import java.util.List;
 
@@ -20,11 +20,14 @@ import java.util.List;
 
 public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
     private static final String TAG = "jpd-SortAdapter";
-    private List<SortData> mSortData;
+    private List<Money> mSortData;
+    private String selectMoney;
 
-    public SortAdapter(List<SortData> list) {
+    public SortAdapter(List<Money> list, String selectMoney) {
         mSortData = list;
+        this.selectMoney = selectMoney;
         Log.d(TAG, "SortAdapter: size:" + mSortData.size());
+        Log.d(TAG, "SortAdapter: selectMoney:" + selectMoney);
     }
 
     @Override
@@ -36,8 +39,21 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        SortData data = mSortData.get(position);
-        holder.mText.setText(data.getName());
+        Money data = mSortData.get(position);
+        String moneyCode = data.getName();
+        holder.mText.setText(moneyCode);
+        Log.d(TAG, "onBindViewHolder: position:" + position);
+        Log.d(TAG, "onBindViewHolder: data:" + data);
+        if (data.isMain4Money()) {
+            holder.mImage.setVisibility(View.VISIBLE);
+            if (selectMoney.equals(data.getName())) {
+                holder.mImage.setBackgroundResource(R.drawable.checkmark_selected);
+            } else {
+                holder.mImage.setBackgroundResource(R.drawable.checkmark_normal);
+            }
+        } else {
+            holder.mImage.setVisibility(View.GONE);
+        }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

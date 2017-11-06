@@ -20,7 +20,7 @@ import net.sunniwell.georgeconversion.R;
 
 public class SliderView extends View {
     private static final String TAG = "jpd-slider";
-    String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
+    String[] letters = {"#", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"
             , "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
     private Paint mLetterPaint;
     private Rect mLetterBound;

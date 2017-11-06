@@ -6,12 +6,45 @@ import org.litepal.crud.DataSupport;
  * Created by admin on 2017/10/25.
  */
 
-public class Money extends DataSupport {
+public class Money extends DataSupport implements Cloneable {
     private String name;
     private String code;
     private boolean isMain4Money;
+    private boolean isEverChoosed;
     private double base1CNYToCurrent;
     private double base1CurrentToCNY;
+    /**
+     * item的首字母
+     */
+    private String firstLetter;
+    /**
+     * item全部拼音
+     */
+    private String letters;
+
+    public boolean isEverChoosed() {
+        return isEverChoosed;
+    }
+
+    public void setEverChoosed(boolean everChoosed) {
+        isEverChoosed = everChoosed;
+    }
+
+    public String getFirstLetter() {
+        return firstLetter;
+    }
+
+    public void setFirstLetter(String firstLetter) {
+        this.firstLetter = firstLetter;
+    }
+
+    public String getLetters() {
+        return letters;
+    }
+
+    public void setLetters(String letters) {
+        this.letters = letters;
+    }
 
     public boolean isSelected() {
         return isSelected;
@@ -24,12 +57,13 @@ public class Money extends DataSupport {
     private boolean isSelected;
 
     public Money(String name, String code, boolean isMain4Money, double base1CNYToCurrent,
-                 double base1CurrentToCNY) {
+                 double base1CurrentToCNY, boolean isEverChoosed) {
         this.name = name;
         this.code = code;
         this.isMain4Money = isMain4Money;
         this.base1CNYToCurrent = base1CNYToCurrent;
         this.base1CurrentToCNY = base1CurrentToCNY;
+        this.isEverChoosed = isEverChoosed;
     }
 
     public double getBase1CNYToCurrent() {
@@ -75,6 +109,12 @@ public class Money extends DataSupport {
     @Override
     public String toString() {
         return "[Money]name:" + name + ",code:" + code + ",isMain4Money:" + isMain4Money
-                + ",base1CNYToCurrent:" + base1CNYToCurrent + ",base1CurrentToCNY:" + base1CurrentToCNY;
+                + ",base1CNYToCurrent:" + base1CNYToCurrent + ",base1CurrentToCNY:" + base1CurrentToCNY
+                + ",firstLetter:" + firstLetter + ",letters:" + letters + ",isEverChoosed:" + isEverChoosed;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

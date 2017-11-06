@@ -12,7 +12,7 @@ import android.util.Log;
 import android.view.View;
 
 import net.sunniwell.georgeconversion.R;
-import net.sunniwell.georgeconversion.db.SortData;
+import net.sunniwell.georgeconversion.db.Money;
 
 import java.util.List;
 
@@ -22,14 +22,14 @@ import java.util.List;
 
 public class SectorItemDecoration extends RecyclerView.ItemDecoration {
     private static final String TAG = "jpd-SID";
-    private List<SortData> mDataList;
+    private List<Money> mDataList;
     private int headerHeight;
     private Paint mPaint;
     private TextPaint mTextPaint;
     Paint.FontMetrics mFontMetrics;
     private int headerPaddingLeft;
 
-    public SectorItemDecoration(Context context, List<SortData> list) {
+    public SectorItemDecoration(Context context, List<Money> list) {
 //        Log.d(TAG, "SectorItemDecoration: ");
         mDataList = list;
         headerHeight = context.getResources().getDimensionPixelSize(R.dimen.header_height);
