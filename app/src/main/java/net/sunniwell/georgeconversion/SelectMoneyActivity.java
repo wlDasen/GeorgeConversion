@@ -27,12 +27,11 @@ import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.recyclerview.CustomItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.SectorItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.SortAdapter;
+import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.PinyinComparator;
 import net.sunniwell.georgeconversion.util.PinyinUtils;
 import net.sunniwell.georgeconversion.view.ClearEditText;
 import net.sunniwell.georgeconversion.view.SliderView;
-
-import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -160,7 +159,11 @@ public class SelectMoneyActivity extends AppCompatActivity {
      * 初始化RecyclerView的适配器数据
      */
     private void initAdapterData() {
-        mDataList = DataSupport.findAll(Money.class);
+        mDataList = MoneyDBUtil.getAllMoney();
+        Log.d(TAG, "initAdapterData: ");
+        for (int i = 0; i < mDataList.size(); i++) {
+            Log.d(TAG, "initAdapterData: " + mDataList.get(i));
+        }
     }
 
     private void initView() {
@@ -170,7 +173,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView)findViewById(R.id.rclv);
         mManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mManager);
-        mAdapter = new SortAdapter(mDataList, selectMoney);
+        mAdapter = new SortAdapter(this, mDataList, selectMoney);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(new SectorItemDecoration(this, mDataList));
         mRecyclerView.addItemDecoration(new CustomItemDecoration(this));
@@ -199,6 +202,15 @@ public class SelectMoneyActivity extends AppCompatActivity {
      * 注册字母索引列表点击的回调listener
      */
     private void registerListener() {
+        SortAdapter.OnItemClickedListener itemListener = new SortAdapter.OnItemClickedListener() {
+            @Override
+            public void onItemClick() {
+                Log.d(TAG, "onItemClick: ");
+                mAdapter.notifyChangeDataList();
+                finish();
+            }
+        };
+        mAdapter.setOnItemClickListener(itemListener);
         listener = new SliderView.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {

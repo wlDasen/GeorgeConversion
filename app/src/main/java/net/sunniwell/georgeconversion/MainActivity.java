@@ -30,11 +30,11 @@ import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
 import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
 import net.sunniwell.georgeconversion.util.HttpUtil;
+import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.PinyinUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.io.IOException;
@@ -81,24 +81,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         init();
         if (!getConfigureFlag()) {
-            setMoneyList();
+            MoneyDBUtil.setMoneyList(this);
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putBoolean("isConfigured", true);
+            editor.apply();
         }
 
-        mMoneyList .addAll(getMain4Money());
-        mAdapter.notifyDataSetChanged();
-
+        showMainpageData();
 //        refreshMoneyRate();
+    }
+
+    private void showMainpageData() {
+        mMoneyList.clear();
+        mMoneyList .addAll(MoneyDBUtil.getMain4Money());
+        Log.d(TAG, "showMainpageData: before print...");
+        printList(mMoneyList);
+        Log.d(TAG, "showMainpageData: after print...");
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        refreshMoneyRate();
         Log.d(TAG, "onResume: ");
-        if (isSwiped) {
+        showMainpageData();
+//        if (isSwiped) {
 //            Log.d(TAG, "onResume: isSwiped.");
-            mAdapter.notifyDataSetChanged();
-            isSwiped = false;
-        }
+//            mAdapter.notifyDataSetChanged();
+//            isSwiped = false;
+//        }
     }
 
     @Override
@@ -114,26 +126,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mDrawerLayout.openDrawer(Gravity.LEFT);
                 break;
             case R.id.toolbar_refresh:
+                refreshAnim();
                 refreshMoneyRate();
                 break;
             default:
                 break;
         }
-    }
-
-    /**
-     * 获取主界面4种用户选择货币的list信息
-     */
-    private List<Money> getMain4Money() {
-        List<Money> list = DataSupport
-                .where("ismain4money > ? and firstletter != ?", "0", "#")
-                .find(Money.class);
-        Log.d(TAG, "getMain4Money: query:" + list.size());
-        for (int i = 0; i < list.size(); i++) {
-            Money money = list.get(i);
-            Log.d(TAG, "getMain4Money: " + money);
-        }
-        return list;
     }
 
     /**
@@ -152,12 +150,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void refreshMoneyRate() {
         Log.d(TAG, "refreshMoneyRate: ");
         // 刷新动画
-        refreshAnim();
        new Thread(new Runnable() {
            @Override
            public void run() {
                Log.d(TAG, "refreshMoneyRate: current:" + Thread.currentThread().getId());
-               List<Money> list = getMain4Money();
+               Log.d(TAG, "run: before print...");
+               List<Money> list = MoneyDBUtil.getMain4Money();
+//               printList(list);
+               Log.d(TAG, "run: after print...");
                Log.d(TAG, "refreshMoneyRate: size:" + list.size());
 //               printList(list);
                try {
@@ -267,55 +267,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         boolean isConfigured = prefs.getBoolean("isConfigured", false);
         Log.d(TAG, "onCreate: isConfigured:" + isConfigured);
         return  isConfigured;
-    }
-
-    /**
-     * 设置默认货币的各种信息
-     */
-    private void setMoneyList() {
-        Log.d(TAG, "setMoneyList: ");
-
-        String[] nameArrays = getResources().getStringArray(R.array.name);
-        String[] codeArrays = getResources().getStringArray(R.array.code);
-        int[] isMain4MoneyArrays = getResources().getIntArray(R.array.isMain4Money);
-        int[] isEverChoosedArrays = getResources().getIntArray(R.array.isEverChoosed);
-        String[] base1CNYToCurrentArrays = getResources().getStringArray(R.array.base1CNYToCurrent);
-        String[] base1CurrentToCNYArrays = getResources().getStringArray(R.array.base1CurrentToCNY);
-        Log.d(TAG, "setMoneyList: len:" + nameArrays.length);
-        for (int i = 0; i < nameArrays.length; i++) {
-            boolean isMain4Money = isMain4MoneyArrays[i] == 1 ? true : false;
-            boolean isEverChoosed = isEverChoosedArrays[i] == 1 ? true : false;
-            double base1CNYToCurrent = Double.parseDouble(base1CNYToCurrentArrays[i]);
-            double base1CurrentToCNY = Double.parseDouble(base1CurrentToCNYArrays[i]);
-            Money money = new Money(nameArrays[i], codeArrays[i], isMain4Money, base1CNYToCurrent, base1CurrentToCNY
-                , isEverChoosed);
-            String pinyin = PinyinUtils.getPinyin(nameArrays[i]);
-//            Log.d(TAG, "initData: pinyin:" + pinyin);
-            money.setLetters(pinyin.toLowerCase());
-            String letter = pinyin.substring(0, 1).toUpperCase();
-            if (letter.matches("[A-Z]")) {
-                money.setFirstLetter(letter);
-            } else {
-                money.setFirstLetter("#");
-            }
-            if (money.isEverChoosed()) {
-                Money chooseMoney = null;
-                try {
-                    chooseMoney = (Money)money.clone();
-                    chooseMoney.setEverChoosed(true);
-                    chooseMoney.setFirstLetter("#");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                chooseMoney.save();
-            }
-
-            Log.d(TAG, "setMoneyList: money:" + money);
-            money.save();
-        }
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putBoolean("isConfigured", true);
-        editor.apply();
     }
 
     @Override

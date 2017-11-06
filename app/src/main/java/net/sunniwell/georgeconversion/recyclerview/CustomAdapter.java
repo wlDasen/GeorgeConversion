@@ -253,6 +253,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      */
     public void longPressDeleteButton() {
         isDefaultState = true;
+        mBuilder.delete(0, mBuilder.length());
         dealEditData(TYPE_INPUT_NUMBER);
     }
 

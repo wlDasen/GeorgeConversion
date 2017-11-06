@@ -56,6 +56,8 @@ public class Money extends DataSupport implements Cloneable {
 
     private boolean isSelected;
 
+    public Money() {}
+
     public Money(String name, String code, boolean isMain4Money, double base1CNYToCurrent,
                  double base1CurrentToCNY, boolean isEverChoosed) {
         this.name = name;
@@ -115,6 +117,8 @@ public class Money extends DataSupport implements Cloneable {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Money money = new Money(new String(this.name), new String(code), this.isMain4Money
+            , this.base1CNYToCurrent, this.base1CurrentToCNY, this.isEverChoosed);
+        return money;
     }
 }
