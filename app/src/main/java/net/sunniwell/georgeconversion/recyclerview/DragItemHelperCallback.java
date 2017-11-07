@@ -10,7 +10,7 @@ import net.sunniwell.georgeconversion.MainApplication;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 
 /**
- * Created by admin on 2017/10/12.
+ * 实现RecyclerView的左右滑动
  */
 
 public class DragItemHelperCallback extends ItemTouchHelper.Callback {
@@ -23,7 +23,7 @@ public class DragItemHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        int swipeFlags = ItemTouchHelper.END;
         return makeMovementFlags(ItemTouchHelper.ACTION_STATE_IDLE, swipeFlags);
     }
 
@@ -34,14 +34,9 @@ public class DragItemHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        // TODO: 2017/10/12
-        if (direction == ItemTouchHelper.START) {
-            Log.d(TAG, "onSwiped: 往左滑动");
-        } else {
-//            Log.d(TAG, "onSwiped: 往右滑动");
+            Log.d(TAG, "onSwiped: 往右滑动");
             if (listener != null) {
                 listener.onItemSwipe(viewHolder.getAdapterPosition());
             }
-        }
     }
 }
