@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -56,10 +57,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     private static int mRefreshItemCount = 0;
 
-
     public CustomAdapter(Context context, List<Money> countryList) {
         Log.d(TAG, "CustomAdapter: ");
         this.mMoneyList = countryList;
+
         mETistener = new CustomEditText.OnEditTouchListener() {
             @Override
             public void onEditTouch(CustomEditText cet, int position) {

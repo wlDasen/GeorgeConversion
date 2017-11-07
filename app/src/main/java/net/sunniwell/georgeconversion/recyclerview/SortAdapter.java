@@ -1,7 +1,9 @@
 package net.sunniwell.georgeconversion.recyclerview;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
@@ -27,13 +29,15 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
     private static final String TAG = "jpd-SortAdapter";
     private List<Money> mSortData;
     private String selectMoney;
+    private int mSwipePosition;
     private Context mContext;
     private OnItemClickedListener listener;
 
-    public SortAdapter(Context context, List<Money> list, String selectMoney) {
+    public SortAdapter(Context context, List<Money> list, String selectMoney, int position) {
         mContext = context;
         mSortData = list;
         this.selectMoney = selectMoney;
+        mSwipePosition = position;
         Log.d(TAG, "SortAdapter: size:" + mSortData.size());
         Log.d(TAG, "SortAdapter: selectMoney:" + selectMoney);
     }
@@ -72,7 +76,10 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
                 if (mSortData.get(position).isMain4Money()) {
                     Toast.makeText(mContext, "重复的货币选择，请重新选择其他货币", Toast.LENGTH_LONG).show();
                 } else {
-                    MoneyDBUtil.setMain4Money(selectMoney, mSortData.get(position).getName());
+                    MoneyDBUtil.setMain4Money(selectMoney, mSortData.get(position).getName(), mSwipePosition);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+                    editor.putString(String.valueOf(mSwipePosition), mSortData.get(position).getCode());
+                    editor.apply();
                     if (listener != null) {
                         listener.onItemClick();
                     }

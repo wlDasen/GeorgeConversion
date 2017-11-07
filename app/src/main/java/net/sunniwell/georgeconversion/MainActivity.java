@@ -32,6 +32,7 @@ import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
 import net.sunniwell.georgeconversion.util.HttpUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.PinyinUtils;
+import net.sunniwell.georgeconversion.util.SortFieldComparator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,7 +40,10 @@ import org.litepal.tablemanager.Connector;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import okhttp3.Response;
 
@@ -54,6 +58,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CustomAdapter mAdapter;
     private ItemSwipeListener mListener;
     private Button mDeleteBtn;
+    private SharedPreferences mPrefs;
+    /**
+     * Money sortField字段排序的Comparator
+     */
+    private SortFieldComparator mComparator;
     /**
      * 主程序退出标记
      */
@@ -82,21 +91,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         init();
         if (!getConfigureFlag()) {
             MoneyDBUtil.setMoneyList(this);
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            SharedPreferences.Editor editor = mPrefs.edit();
             editor.putBoolean("isConfigured", true);
             editor.apply();
         }
-
+        // 判断初始主界面4个位置的pref
+        if (mPrefs.getString("firstPos", "") == "") {
+            // 设置初始主界面3个位置的pref和对应的moneyCode
+            setPositionRecordPrefs();
+        }
         showMainpageData();
-//        refreshMoneyRate();
+        refreshMoneyRate();
+
     }
 
+    /**
+     * 设置初始主界面3个位置的pref和对应的moneyCode
+     * "0"-"CNY"
+     * "1"-"USD"
+     * "2"-"EUR"
+     * "3"-"HKD"
+     */
+    private void setPositionRecordPrefs() {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString("0", "CNY");
+        editor.putString("1", "USD");
+        editor.putString("2", "EUR");
+        editor.putString("3", "HKD");
+        editor.apply();
+    }
+
+    /**
+     * 获取制定moneyCode在Prefs中对应的位置
+     * @param moneyCode 要获取的moneyCode
+     * @return moneyCode在prefs中对应的位置
+     */
+    private int getPositionInPrefs(String moneyCode) {
+        String position = null;
+        Map map = mPrefs.getAll();
+        Set<String> keys = map.keySet();
+        for (String key : keys) {
+            if (map.get(key).equals(moneyCode)) {
+                position = key;
+            }
+        }
+        return Integer.parseInt(position);
+    }
+
+    /**
+     * 设置Adapter数据，刷新RecyclerView
+     */
     private void showMainpageData() {
+        // 获取默认顺序的四种主要货币
+        List<Money> list = MoneyDBUtil.getMain4Money();
+        // 按照sortField字段对四种默认货币排序
+        Collections.sort(list, mComparator);
+        // 清空Adaptor数据
         mMoneyList.clear();
-        mMoneyList .addAll(MoneyDBUtil.getMain4Money());
-        Log.d(TAG, "showMainpageData: before print...");
-        printList(mMoneyList);
-        Log.d(TAG, "showMainpageData: after print...");
+        // 为Adaptor添加数据
+        mMoneyList.addAll(list);
+        // 刷新RecyclerView的数据
         mAdapter.notifyDataSetChanged();
     }
 
@@ -181,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                    e.printStackTrace();
                }
                mMoneyList.clear();
+               Collections.sort(list, mComparator);
                mMoneyList.addAll(list);
                runOnUiThread(new Runnable() {
                    @Override
@@ -227,6 +282,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "init: ");
         // 初始化Litepal数据库
         SQLiteDatabase db = Connector.getDatabase();
+        mComparator = new SortFieldComparator();
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView)findViewById(R.id.nav_layout);
         mNavigationView.setItemIconTintList(null);
@@ -248,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 isSwiped = true;
                 Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
                 intent.putExtra("money_name", mMoneyList.get(position).getName());
+                intent.putExtra("position", position);
 //                Log.d(TAG, "onItemSwipe: pos:" + position);
 //                Log.d(TAG, "onItemSwipe: money:" + mMoneyList.get(position).getCode());
                 startActivity(intent);
@@ -263,8 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return true-已经配置过默认数据库 false-没有配置过默认数据库
      */
     private boolean getConfigureFlag() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isConfigured = prefs.getBoolean("isConfigured", false);
+        boolean isConfigured = mPrefs.getBoolean("isConfigured", false);
         Log.d(TAG, "onCreate: isConfigured:" + isConfigured);
         return  isConfigured;
     }

@@ -34,19 +34,22 @@ public class MoneyDBUtil {
         }
         return list;
     }
+
     /**
      * 设置新的4种主要货币并保存数据库
      */
-    public static void setMain4Money(String oldMoneyName, String newMoneyName) {
+    public static void setMain4Money(String oldMoneyName, String newMoneyName, int swipePosition) {
         List<Money> lists = DataSupport.findAll(Money.class);
         Log.d(TAG, "setMain4Money: size:" + lists.size());
         for (int i = 0; i < lists.size(); i++) {
             Money money = lists.get(i);
             if (oldMoneyName.equals(money.getName())) {
                 money.setMain4Money(false);
+                money.setSortField(-1);
             }
             if (newMoneyName.equals(money.getName())) {
                 money.setMain4Money(true);
+                money.setSortField(Integer.valueOf(swipePosition));
                 if (!isInEverchooseList(newMoneyName)) {
                     Money chooseMoney = null;
                     try {
@@ -91,16 +94,18 @@ public class MoneyDBUtil {
         String[] codeArrays = context.getResources().getStringArray(R.array.code);
         int[] isMain4MoneyArrays = context.getResources().getIntArray(R.array.isMain4Money);
         int[] isEverChoosedArrays = context.getResources().getIntArray(R.array.isEverChoosed);
+        int[] orderFieldArrays = context.getResources().getIntArray(R.array.sortField);
         String[] base1CNYToCurrentArrays = context.getResources().getStringArray(R.array.base1CNYToCurrent);
         String[] base1CurrentToCNYArrays = context.getResources().getStringArray(R.array.base1CurrentToCNY);
         Log.d(TAG, "setMoneyList: len:" + nameArrays.length);
         for (int i = 0; i < nameArrays.length; i++) {
             boolean isMain4Money = isMain4MoneyArrays[i] == 1 ? true : false;
             boolean isEverChoosed = isEverChoosedArrays[i] == 1 ? true : false;
+            int orderField = orderFieldArrays[i];
             double base1CNYToCurrent = Double.parseDouble(base1CNYToCurrentArrays[i]);
             double base1CurrentToCNY = Double.parseDouble(base1CurrentToCNYArrays[i]);
             Money money = new Money(nameArrays[i], codeArrays[i], isMain4Money, base1CNYToCurrent, base1CurrentToCNY
-                    , isEverChoosed);
+                    , isEverChoosed, orderField);
             String pinyin = PinyinUtils.getPinyin(nameArrays[i]);
 //            Log.d(TAG, "initData: pinyin:" + pinyin);
             money.setLetters(pinyin.toLowerCase());

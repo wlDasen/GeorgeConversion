@@ -169,11 +169,12 @@ public class SelectMoneyActivity extends AppCompatActivity {
     private void initView() {
         Intent intent = getIntent();
         String selectMoney = intent.getStringExtra("money_name");
+        int position = intent.getIntExtra("position", 0);
         mSliderView = (SliderView)findViewById(R.id.slider_view);
         mRecyclerView = (RecyclerView)findViewById(R.id.rclv);
         mManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mManager);
-        mAdapter = new SortAdapter(this, mDataList, selectMoney);
+        mAdapter = new SortAdapter(this, mDataList, selectMoney, position);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(new SectorItemDecoration(this, mDataList));
         mRecyclerView.addItemDecoration(new CustomItemDecoration(this));
@@ -206,7 +207,6 @@ public class SelectMoneyActivity extends AppCompatActivity {
             @Override
             public void onItemClick() {
                 Log.d(TAG, "onItemClick: ");
-                mAdapter.notifyChangeDataList();
                 finish();
             }
         };
