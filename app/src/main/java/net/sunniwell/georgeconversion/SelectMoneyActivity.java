@@ -208,6 +208,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
             public void onItemClick() {
                 Log.d(TAG, "onItemClick: ");
                 finish();
+                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
             }
         };
         mAdapter.setOnItemClickListener(itemListener);
@@ -277,6 +278,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "onClick: click back button.");
                 finish();
+                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
             }
         });
     }
@@ -362,5 +364,11 @@ public class SelectMoneyActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
     }
 }

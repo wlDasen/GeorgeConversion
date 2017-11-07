@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--跳转主界面货币选择界面的动画 从屏幕滑出到右侧-->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <translate android:fromXDelta="0%p" android:toXDelta="100%p"
+        android:duration="300" />
+</set>

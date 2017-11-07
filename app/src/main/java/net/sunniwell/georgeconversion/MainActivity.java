@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -48,7 +50,8 @@ import java.util.Set;
 
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener
+    , NavigationView.OnNavigationItemSelectedListener{
     public static final String TAG = "jpd-MainActivity";
     private NavigationView mNavigationView;
     private Button mNavBtn;
@@ -79,6 +82,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isExit = true;
         }
     };
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item2:
+                Intent intent = new Intent(MainActivity.this, NavigationSettingActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return true;
+    }
+
     /**
      * item右滑状态
      */
@@ -300,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView)findViewById(R.id.nav_layout);
         mNavigationView.setItemIconTintList(null);
+        mNavigationView.setNavigationItemSelectedListener(this);
         mNavBtn = (Button)findViewById(R.id.toolbar_nav);
         mRefreshBtn = (Button)findViewById(R.id.toolbar_refresh);
         mNavBtn.setOnClickListener(this);
@@ -319,9 +335,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
                 intent.putExtra("money_name", mMoneyList.get(position).getName());
                 intent.putExtra("position", position);
-//                Log.d(TAG, "onItemSwipe: pos:" + position);
-//                Log.d(TAG, "onItemSwipe: money:" + mMoneyList.get(position).getCode());
                 startActivity(intent);
+                overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
             }
         };
         ItemTouchHelper.Callback callback = new DragItemHelperCallback(mListener);
