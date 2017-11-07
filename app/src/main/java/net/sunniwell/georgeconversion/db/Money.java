@@ -3,7 +3,7 @@ package net.sunniwell.georgeconversion.db;
 import org.litepal.crud.DataSupport;
 
 /**
- * Created by admin on 2017/10/25.
+ * LitePal数据库对应的数据模型，用来存储跟货币相关的所有信息
  */
 
 public class Money extends DataSupport implements Cloneable {
@@ -37,7 +37,7 @@ public class Money extends DataSupport implements Cloneable {
      */
     private int sortField;
     /**
-     * item的拼音大写首字母 如人民币对应的是R
+     * item的拼音大写首字母显示在货币选择界面的表头位置 如人民币对应的是R
      */
     private String firstLetter;
     /**
