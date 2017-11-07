@@ -1,5 +1,6 @@
 package net.sunniwell.georgeconversion.recyclerview;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -47,6 +48,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * 货币数量默认数字标志位 true-没有输入过数字 false-输入过数字
      */
     private boolean isDefaultState = true;
+    /**
+     * 网络刷新成功标志位，数据刷新成功后，置位true
+     */
+    public boolean needToRefresh = false;
     private StringBuilder mBuilder;
     /**
      * 标记处理数据接口的默认进入方式 0-处理数据前不进行任何操作 1-切换Item 2-点击数字按钮
@@ -156,6 +161,17 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         for (int i = 0; i < rates.length; i++) {
 //            Log.d(TAG, "dealEditData: before optimize:" + String.valueOf(rates[i]));
             String number = optimizeNumber(String.valueOf(rates[i]));
+            Log.d(TAG, "dealEditData: number:" + number + ",text:" + mCusEditList.get(i).getText());
+            // TODO: 2017/11/7 添加刷新后的数字动画
+            if (needToRefresh) {
+                if (!number.equals(mCusEditList.get(i).getText())) {
+                    CustomEditText text = mCusEditList.get(i);
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(text, "rotation"
+                            , 0, 360);
+                    animator.setDuration(500);
+                    animator.start();
+                }
+            }
             mCusEditList.get(i).setText(number);
             if (isDefaultState) {
                 mCusEditList.get(i).setTextColor(Color.BLACK);
@@ -166,6 +182,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 mCusEditList.get(i).moveCursorToEnd();
             }
         }
+        needToRefresh = false;
         printCusEditList(mCusEditList);
     }
 

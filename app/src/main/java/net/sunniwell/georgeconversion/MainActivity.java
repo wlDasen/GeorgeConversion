@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -59,6 +60,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ItemSwipeListener mListener;
     private Button mDeleteBtn;
     private SharedPreferences mPrefs;
+    /**
+     * 标记请求网络刷新货币的成功次数
+     */
+    private int mSuccessCount = 0;
     /**
      * Money sortField字段排序的Comparator
      */
@@ -180,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mDrawerLayout.openDrawer(Gravity.LEFT);
                 break;
             case R.id.toolbar_refresh:
-                refreshAnim();
                 refreshMoneyRate();
+                refreshAnim();
                 break;
             default:
                 break;
@@ -203,17 +208,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void refreshMoneyRate() {
         Log.d(TAG, "refreshMoneyRate: ");
-        // 刷新动画
        new Thread(new Runnable() {
            @Override
            public void run() {
-               Log.d(TAG, "refreshMoneyRate: current:" + Thread.currentThread().getId());
-               Log.d(TAG, "run: before print...");
                List<Money> list = MoneyDBUtil.getMain4Money();
-//               printList(list);
-               Log.d(TAG, "run: after print...");
-               Log.d(TAG, "refreshMoneyRate: size:" + list.size());
-//               printList(list);
                try {
                    for (int i = 0; i < list.size(); i++) {
                        Money money = list.get(i);
@@ -222,27 +220,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                    "CNY", money.getCode());
 //                           Log.d(TAG, "refreshMoneyRate: response:" + response.body().string());
                            if (response.isSuccessful()) {
+                               Log.d(TAG, "run: response:" + response.body().string());
                                Double[] data = parseRealRateJSON(response.body().string());
                                Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
                                money.setBase1CNYToCurrent(data[0]);
                                money.setBase1CurrentToCNY(data[1]);
                                money.save();
                                Log.d(TAG, "run: " + money);
+                               mSuccessCount++;
                            }
+                       } else {
+                           mSuccessCount++;
                        }
                    }
                } catch (Exception e) {
                    e.printStackTrace();
                }
-               mMoneyList.clear();
-               Collections.sort(list, mComparator);
-               mMoneyList.addAll(list);
-               runOnUiThread(new Runnable() {
-                   @Override
-                   public void run() {
-                       mAdapter.notifyDataSetChanged();
-                   }
-               });
+               if (mSuccessCount == 4) {
+                   mMoneyList.clear();
+                   Collections.sort(list, mComparator);
+                   mMoneyList.addAll(list);
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           mAdapter.notifyDataSetChanged();
+                           mAdapter.needToRefresh = true;
+                       }
+                   });
+               } else {
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           Toast.makeText(MainActivity.this, "刷新数据失败", Toast.LENGTH_SHORT).show();
+                       }
+                   });
+               }
+               mSuccessCount = 0;
            }
        }).start();
     }
