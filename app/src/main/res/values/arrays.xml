@@ -9,9 +9,35 @@
     <dimen name="tagRight">30dp</dimen>
     <dimen name="divider_bottom">5dp</dimen>
     <dimen name="header_height">30dp</dimen>
+    <dimen name="navigation_header_height">50dp</dimen>
     <dimen name="header_padding_left">10dp</dimen>
     <dimen name="letter_top_padding">5dp</dimen>
     <dimen name="letter_bottom_padding">5dp</dimen>
+    <!--Navigation设置的常规子条目-->
+    <string-array name="navi_setting_general_item">
+        <item>货币默认值</item>
+        <item>更改主题颜色</item>
+    </string-array>
+    <string-array name="navi_setting_general_item_defaultval">
+        <item>100</item>
+        <item></item>
+    </string-array>
+    <!--Navigation设置的高级子条目-->
+    <string-array name="navi_setting_advanced_item">
+        <item>换算小技巧</item>
+        <item>恢复默认币种列表</item>
+    </string-array>
+    <string-array name="navi_setting_advanced_item_defaultval">
+        <item></item>
+        <item></item>
+    </string-array>
+    <!--Navigation设置的其他子条目-->
+    <string-array name="navi_setting_other_item">
+        <item>分享给朋友</item>
+    </string-array>
+    <string-array name="navi_setting_other_item_defaultval">
+        <item></item>
+    </string-array>
     <string-array name="name">
         <item>人民币</item>
         <item>美元</item>

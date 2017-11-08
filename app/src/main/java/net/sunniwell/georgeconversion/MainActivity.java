@@ -64,10 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mDeleteBtn;
     private SharedPreferences mPrefs;
     /**
-     * 标记请求网络刷新货币的成功次数
-     */
-    private int mSuccessCount = 0;
-    /**
      * Money sortField字段排序的Comparator
      */
     private SortFieldComparator mComparator;
@@ -242,35 +238,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                money.setBase1CurrentToCNY(data[1]);
                                money.save();
                                Log.d(TAG, "run: " + money);
-                               mSuccessCount++;
                            }
-                       } else {
-                           mSuccessCount++;
                        }
                    }
                } catch (Exception e) {
                    e.printStackTrace();
                }
-               if (mSuccessCount == 4) {
-                   mMoneyList.clear();
-                   Collections.sort(list, mComparator);
-                   mMoneyList.addAll(list);
-                   runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                           mAdapter.notifyDataSetChanged();
-                           mAdapter.needToRefresh = true;
-                       }
-                   });
-               } else {
-                   runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                           Toast.makeText(MainActivity.this, "刷新数据失败", Toast.LENGTH_SHORT).show();
-                       }
-                   });
-               }
-               mSuccessCount = 0;
+
+               mMoneyList.clear();
+               Collections.sort(list, mComparator);
+               mMoneyList.addAll(list);
+               runOnUiThread(new Runnable() {
+                   @Override
+                   public void run() {
+                       mAdapter.notifyDataSetChanged();
+                       mAdapter.needToRefresh = true;
+                   }
+               });
            }
        }).start();
     }
