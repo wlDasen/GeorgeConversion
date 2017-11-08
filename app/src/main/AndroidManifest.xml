@@ -23,7 +23,8 @@
         <activity
             android:name=".SelectMoneyActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".NavigationSettingActivity"></activity>
+        <activity android:name=".NavigationSettingActivity" />
+        <activity android:name=".MoneyDefaultValueActivity"></activity>
     </application>
 
 </manifest>

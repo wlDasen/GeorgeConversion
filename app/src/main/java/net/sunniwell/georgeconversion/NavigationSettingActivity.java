@@ -1,5 +1,8 @@
 package net.sunniwell.georgeconversion;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import net.sunniwell.georgeconversion.db.NaviSettingItem;
+import net.sunniwell.georgeconversion.interfaces.OnSettingItemClickListener;
 import net.sunniwell.georgeconversion.recyclerview.NavigationItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.NavigationItemHeader;
 import net.sunniwell.georgeconversion.recyclerview.NavigationSettingAdaptor;
@@ -24,6 +28,7 @@ public class NavigationSettingActivity extends AppCompatActivity {
     private NavigationSettingAdaptor mAdaptor;
     private LinearLayoutManager mManager;
     private List<NaviSettingItem> mItemList;
+    private OnSettingItemClickListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +100,30 @@ public class NavigationSettingActivity extends AppCompatActivity {
         mRecyclerView.addItemDecoration(new NavigationItemDecoration(this));
     }
     private void registerListener() {
+        listener = new OnSettingItemClickListener() {
+            @Override
+            public void onSettingItemClick() {
+                Intent intent = new Intent(NavigationSettingActivity.this, MoneyDefaultValueActivity.class);
+                startActivityForResult(intent, 1);
+            }
+        };
+        mAdaptor.setOnSettingItemClick(listener);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if (resultCode == 1) {
+                    String defaultValue = data.getStringExtra("selecte_value");
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                    editor.putString("default_money_number", defaultValue);
+                    editor.apply();
+                    mAdaptor.notifyDataSetChanged();
+                }
+                break;
+        }
     }
 
     private void printList(List<NaviSettingItem> list) {

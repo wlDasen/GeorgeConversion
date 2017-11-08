@@ -13,6 +13,12 @@
     <dimen name="header_padding_left">10dp</dimen>
     <dimen name="letter_top_padding">5dp</dimen>
     <dimen name="letter_bottom_padding">5dp</dimen>
+    <!--货币默认值得列表数值选项-->
+    <string-array name="default_number_list">
+        <item>1</item>
+        <item>10</item>
+        <item>100</item>
+    </string-array>
     <!--Navigation设置的常规子条目-->
     <string-array name="navi_setting_general_item">
         <item>货币默认值</item>

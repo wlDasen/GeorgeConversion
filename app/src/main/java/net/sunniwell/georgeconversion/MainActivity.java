@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ItemSwipeListener mListener;
     private Button mDeleteBtn;
     private SharedPreferences mPrefs;
+    private static final int requestDefaultMoney = 1;
     /**
      * Money sortField字段排序的Comparator
      */

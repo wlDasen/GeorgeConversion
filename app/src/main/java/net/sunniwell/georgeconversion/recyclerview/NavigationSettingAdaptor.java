@@ -1,6 +1,7 @@
 package net.sunniwell.georgeconversion.recyclerview;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,8 +12,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import net.sunniwell.georgeconversion.MoneyDefaultValueActivity;
 import net.sunniwell.georgeconversion.R;
 import net.sunniwell.georgeconversion.db.NaviSettingItem;
+import net.sunniwell.georgeconversion.interfaces.OnSettingItemClickListener;
 
 import java.util.List;
 
@@ -24,6 +27,7 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
     private static final String TAG = "jpd-NSAdaptor";
     private List<NaviSettingItem> mItemList;
     private Context mContext;
+    private OnSettingItemClickListener listener;
 
     public NavigationSettingAdaptor(Context context, List<NaviSettingItem> list) {
         mContext = context;
@@ -38,7 +42,7 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         NaviSettingItem item = mItemList.get(position);
         String title = item.getItemTitle();
         String value = item.getItemValue();
@@ -48,6 +52,16 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
         } else {
             holder.textValue.setVisibility(View.GONE);
         }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position == 0) { // 跳转货币默认值选择界面
+                    if (listener != null) {
+                        listener.onSettingItemClick();
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -64,5 +78,9 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
             textTitle = (TextView)itemView.findViewById(R.id.text_title);
             textValue = (TextView)itemView.findViewById(R.id.text_value);
         }
+    }
+
+    public void setOnSettingItemClick(OnSettingItemClickListener listener) {
+        this.listener = listener;
     }
 }

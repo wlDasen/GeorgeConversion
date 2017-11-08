@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_navigation_setting"
+    android:id="@+id/activity_money_default_value"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#ffffff"
-    tools:context="net.sunniwell.georgeconversion.NavigationSettingActivity">
+    tools:context="net.sunniwell.georgeconversion.MoneyDefaultValueActivity">
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -28,7 +27,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="20dp"
                 android:textColor="#ffffff"
-                android:text="@string/navigation_setting_toolbar_title"/>
+                android:text="@string/nav_setting_default_value"/>
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
     <android.support.v7.widget.RecyclerView
