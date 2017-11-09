@@ -1,21 +1,16 @@
 package net.sunniwell.georgeconversion.recyclerview;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import net.sunniwell.georgeconversion.MoneyDefaultValueActivity;
 import net.sunniwell.georgeconversion.R;
 import net.sunniwell.georgeconversion.db.NaviSettingItem;
 import net.sunniwell.georgeconversion.interfaces.OnSettingItemClickListener;
+import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 
 import java.util.List;
 
@@ -47,8 +42,13 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
         String title = item.getItemTitle();
         String value = item.getItemValue();
         holder.textTitle.setText(title);
+        String defaultValue = SharedPreferenceUtil.getString(mContext, "default_money_number", "");
         if (!"".equals(value)) {
-            holder.textValue.setText(value);
+            if ("".equals(defaultValue)) {
+                holder.textValue.setText(value);
+            } else {
+                holder.textValue.setText(defaultValue);
+            }
         } else {
             holder.textValue.setVisibility(View.GONE);
         }

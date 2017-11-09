@@ -1,9 +1,6 @@
 package net.sunniwell.georgeconversion;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,24 +9,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.recyclerview.DefaultValueDecoration;
-import net.sunniwell.georgeconversion.recyclerview.NavigationItemDecoration;
+import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoneyDefaultValueActivity extends AppCompatActivity {
+public class MoneyDefaultValueActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "jpd-MDVAc";
     private List<MoneyBean> mList;
     private RecyclerView mRecycler;
     private MyAdaptor mMyAdapter;
     private LinearLayoutManager mManager;
-    private static final String DEFAULT_MONEY_NUMBER = "default_money_number";
-    private SharedPreferences mPrefs;
+    private Button mBackButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,21 +34,17 @@ public class MoneyDefaultValueActivity extends AppCompatActivity {
 
         initData();
         initView();
+        registerListener();
     }
 
     private void initData() {
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String str = getDefaultMoney();
-        if ("".equals(str)) {
-            setDefaultMoney("100");
-        }
         mList = new ArrayList<>();
         String[] numberList = getResources().getStringArray(R.array.default_number_list);
         Log.d(TAG, "initData: numberlist:" + numberList);
         for (String i : numberList) {
             MoneyBean mb = new MoneyBean();
             mb.setValue(i);
-            if (i.equals(getDefaultMoney())) {
+            if (i.equals(SharedPreferenceUtil.getString(this, "default_money_number", ""))) {
                 mb.setSelected(true);
             } else {
                 mb.setSelected(false);
@@ -67,17 +59,24 @@ public class MoneyDefaultValueActivity extends AppCompatActivity {
         mRecycler.setAdapter(mMyAdapter);
         mRecycler.setLayoutManager(mManager);
         mRecycler.addItemDecoration(new DefaultValueDecoration(this));
+        mBackButton = (Button)findViewById(R.id.back_button);
     }
-    private String getDefaultMoney() {
-        return mPrefs.getString(DEFAULT_MONEY_NUMBER, "");
+    private void registerListener() {
+        mBackButton.setOnClickListener(this);
     }
-    private void setDefaultMoney(String money) {
-        SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putString(DEFAULT_MONEY_NUMBER, money);
-        editor.apply();
+
+    @Override
+    public void onClick(View v) {
+        finish();
     }
 
     public class MyAdaptor extends RecyclerView.Adapter<MyAdaptor.ViewHolder> {
+        private int curPos;
+        private List<ImageView> imgList;
+
+        public MyAdaptor() {
+            imgList = new ArrayList<>();
+        }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -87,19 +86,23 @@ public class MoneyDefaultValueActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, final int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             holder.text.setText(mList.get(position).getValue());
             if (mList.get(position).isSelected) {
                 holder.image.setVisibility(View.VISIBLE);
+                curPos = position;
             } else {
                 holder.image.setVisibility(View.GONE);
             }
+            imgList.add(holder.image);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setDefaultMoney(mList.get(position).getValue());
+                    imgList.get(curPos).setVisibility(View.GONE);
+                    curPos = position;
+                    imgList.get(position).setVisibility(View.VISIBLE);
                     Intent intent = new Intent();
-                    intent.putExtra("selecte_value", mList.get(position).getValue());
+                    intent.putExtra("select_value", mList.get(position).getValue());
                     setResult(1, intent);
                     finish();
                 }

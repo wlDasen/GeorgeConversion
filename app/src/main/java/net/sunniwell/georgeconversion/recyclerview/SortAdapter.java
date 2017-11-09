@@ -1,7 +1,6 @@
 package net.sunniwell.georgeconversion.recyclerview;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 import net.sunniwell.georgeconversion.R;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
+import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 
 import java.util.List;
 
@@ -76,10 +76,8 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
                 if (mSortData.get(position).isMain4Money()) {
                     Toast.makeText(mContext, "重复的货币选择，请重新选择其他货币", Toast.LENGTH_LONG).show();
                 } else {
-                    MoneyDBUtil.setMain4Money(selectMoney, mSortData.get(position).getName(), mSwipePosition);
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-                    editor.putString(String.valueOf(mSwipePosition), mSortData.get(position).getCode());
-                    editor.apply();
+                    MoneyDBUtil.setMain4Money(selectMoney, mSortData.get(position).getName(), mSwipePosition);F
+                    SharedPreferenceUtil.setString(mContext, String.valueOf(mSwipePosition), mSortData.get(position).getCode());
                     if (listener != null) {
                         listener.onItemClick();
                     }

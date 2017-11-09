@@ -2,9 +2,7 @@ package net.sunniwell.georgeconversion.recyclerview;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseArray;
@@ -20,6 +18,7 @@ import net.sunniwell.georgeconversion.MainApplication;
 import net.sunniwell.georgeconversion.R;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.util.CalculateUtil;
+import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 import net.sunniwell.georgeconversion.view.CustomEditText;
 
 import java.util.ArrayList;
@@ -41,10 +40,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private List<View> mViewList = new ArrayList<>();
     private CustomEditText.OnEditTouchListener mETistener;
     /**
-     * 全局静态SharedPreferences
-     */
-    private static SharedPreferences mPrefs;
-    /**
      * 货币数量默认数字标志位 true-没有输入过数字 false-输入过数字
      */
     private boolean isDefaultState = true;
@@ -61,10 +56,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private static final int TYPE_INPUT_NUMBER = 2;
 
     private static int mRefreshItemCount = 0;
+    private Context mContext;
 
     public CustomAdapter(Context context, List<Money> countryList) {
         Log.d(TAG, "CustomAdapter: ");
         this.mMoneyList = countryList;
+        mContext = context;
 
         mETistener = new CustomEditText.OnEditTouchListener() {
             @Override
@@ -150,7 +147,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             rates[i] = mMoneyList.get(i).getBase1CNYToCurrent();
         }
         if (isDefaultState) {
-            rates = CalculateUtil.calculate(rates, baseRate, 100);
+            String value = SharedPreferenceUtil.getString(mContext, "default_money_number", "100");
+            rates = CalculateUtil.calculate(rates, baseRate, Integer.parseInt(value));
         } else {
             if (enterType == TYPE_CHANGE_ITEM) {
                 rates = CalculateUtil.calculate(rates, baseRate, Double.parseDouble(mCurrentEdit.getText().toString()));
@@ -281,22 +279,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     }
 
     /**
-     * 获取全局静态SharedPreInstance
-     * @return 全局静态SharedPreInstance
-     */
-    private SharedPreferences getSharedPreInstance() {
-        if (mPrefs == null) {
-            mPrefs = PreferenceManager.getDefaultSharedPreferences(MainApplication.getContext());
-        }
-        return mPrefs;
-    }
-
-    /**
      * 获取item选中偏好设置
      * @return
      */
     private int getPreFlag() {
-        return getSharedPreInstance().getInt("itemPosition", -1);
+        return SharedPreferenceUtil.getInt(mContext, "itemPosition", -1);
     }
 
     /**
@@ -304,9 +291,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * @param position 选中的位置
      */
     private void setPreFlag(int position) {
-        SharedPreferences.Editor editor = getSharedPreInstance().edit();
-        editor.putInt("itemPosition", position);
-        editor.apply();
+        SharedPreferenceUtil.setInt(mContext, "itemPosition", position);
     }
 
     /**

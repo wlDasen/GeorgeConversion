@@ -1,8 +1,6 @@
 package net.sunniwell.georgeconversion.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import net.sunniwell.georgeconversion.R;

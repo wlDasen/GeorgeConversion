@@ -43,12 +43,12 @@ public class NavigationItemHeader extends RecyclerView.ItemDecoration {
         int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
             if (i == 0) {
-                outRect.top = view.getTop() + mHeaderHeight;
+                outRect.top = mHeaderHeight;
             } else {
                 if (!mTitleList.get(i).getGroup().equals(mTitleList.get(i - 1).getGroup())) {
-                    outRect.top = view.getTop() + mHeaderHeight;
+                    outRect.top = mHeaderHeight;
                 } else {
-                    outRect.top = view.getTop();
+                    outRect.top = 0;
                 }
             }
         }
@@ -70,19 +70,13 @@ public class NavigationItemHeader extends RecyclerView.ItemDecoration {
                 top = view.getTop() - mHeaderHeight;
                 bottom = view.getTop();
                 c.drawRect(left, top, right,bottom, mRectPaint);
-                Log.d(TAG, "onDraw: start:" + start + ",end:" + end);
                 c.drawText(mTitleList.get(i).getGroup(), start, end, mTextPaint);
             } else {
                 if (!mTitleList.get(i).getGroup().equals(mTitleList.get(i - 1).getGroup())) {
                     top = view.getTop() - mHeaderHeight;
                     bottom = view.getTop();
-                    Log.d(TAG, "onDraw: start:" + start + ",end:" + end);
                     c.drawRect(left, top, right,bottom, mRectPaint);
                     c.drawText(mTitleList.get(i).getGroup(), start, end, mTextPaint);
-                } else {
-                    top = view.getTop();
-                    bottom = view.getTop();
-                    c.drawRect(left, top, right, bottom, mRectPaint);
                 }
             }
         }

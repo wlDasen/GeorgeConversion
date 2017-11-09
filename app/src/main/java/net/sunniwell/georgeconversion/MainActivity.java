@@ -2,12 +2,9 @@ package net.sunniwell.georgeconversion;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -17,15 +14,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.TabHost;
 import android.widget.Toast;
 
 import net.sunniwell.georgeconversion.db.Money;
@@ -34,19 +27,16 @@ import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
 import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
 import net.sunniwell.georgeconversion.util.HttpUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
-import net.sunniwell.georgeconversion.util.PinyinUtils;
+import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 import net.sunniwell.georgeconversion.util.SortFieldComparator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.litepal.tablemanager.Connector;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import okhttp3.Response;
 
@@ -62,8 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CustomAdapter mAdapter;
     private ItemSwipeListener mListener;
     private Button mDeleteBtn;
-    private SharedPreferences mPrefs;
     private static final int requestDefaultMoney = 1;
+    private static final String DEFAULT_MONEY_NUMBER = "default_money_number";
     /**
      * Money sortField字段排序的Comparator
      */
@@ -105,20 +95,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: ");
 
+        initData();
+        initView();
+        registerListener();
         init();
-        if (!getConfigureFlag()) {
+        if (!SharedPreferenceUtil.getBoolean(this, "isConfigured", false)) {
             MoneyDBUtil.setMoneyList(this);
-            SharedPreferences.Editor editor = mPrefs.edit();
-            editor.putBoolean("isConfigured", true);
-            editor.apply();
+            SharedPreferenceUtil.setBoolean(this, "isConfigured", true);
         }
         // 判断初始主界面4个位置的pref
-        if (mPrefs.getString("firstPos", "") == "") {
+        if ("".equals(SharedPreferenceUtil.getString(this, "firstPos", ""))) {
             // 设置初始主界面3个位置的pref和对应的moneyCode
             setPositionRecordPrefs();
         }
         showMainpageData();
         refreshMoneyRate();
+
+    }
+    private void initData() {
+        if ("".equals(SharedPreferenceUtil.getString(this, DEFAULT_MONEY_NUMBER, ""))) {
+            SharedPreferenceUtil.setString(this, DEFAULT_MONEY_NUMBER, "100");
+        }
+    }
+    private void initView() {
+
+    }
+    private void registerListener() {
 
     }
 
@@ -130,12 +132,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * "3"-"HKD"
      */
     private void setPositionRecordPrefs() {
-        SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putString("0", "CNY");
-        editor.putString("1", "USD");
-        editor.putString("2", "EUR");
-        editor.putString("3", "HKD");
-        editor.apply();
+        SharedPreferenceUtil.setString(this, "0", "CNY");
+        SharedPreferenceUtil.setString(this, "1", "USD");
+        SharedPreferenceUtil.setString(this, "2", "EUR");
+        SharedPreferenceUtil.setString(this, "3", "HKD");
     }
 
     /**
@@ -143,17 +143,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param moneyCode 要获取的moneyCode
      * @return moneyCode在prefs中对应的位置
      */
-    private int getPositionInPrefs(String moneyCode) {
-        String position = null;
-        Map map = mPrefs.getAll();
-        Set<String> keys = map.keySet();
-        for (String key : keys) {
-            if (map.get(key).equals(moneyCode)) {
-                position = key;
-            }
-        }
-        return Integer.parseInt(position);
-    }
+//    private int getPositionInPrefs(String moneyCode) {
+//        String position = null;
+//        Map map = SharedPreferenceUtil.getInstance(this).getAll();
+//        Set<String> keys = map.keySet();
+//        for (String key : keys) {
+//            if (map.get(key).equals(moneyCode)) {
+//                position = key;
+//            }
+//        }
+//        return Integer.parseInt(position);
+//    }
 
     /**
      * 设置Adapter数据，刷新RecyclerView
@@ -296,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 初始化Litepal数据库
         SQLiteDatabase db = Connector.getDatabase();
         mComparator = new SortFieldComparator();
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView)findViewById(R.id.nav_layout);
         mNavigationView.setItemIconTintList(null);
@@ -327,16 +326,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ItemTouchHelper.Callback callback = new DragItemHelperCallback(mListener);
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(mRecyclerLayout);
-    }
-
-    /**
-     * 获取默认数据配置标志位
-     * @return true-已经配置过默认数据库 false-没有配置过默认数据库
-     */
-    private boolean getConfigureFlag() {
-        boolean isConfigured = mPrefs.getBoolean("isConfigured", false);
-        Log.d(TAG, "onCreate: isConfigured:" + isConfigured);
-        return  isConfigured;
     }
 
     @Override

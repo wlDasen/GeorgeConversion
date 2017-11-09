@@ -1,20 +1,21 @@
 package net.sunniwell.georgeconversion;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import net.sunniwell.georgeconversion.db.NaviSettingItem;
 import net.sunniwell.georgeconversion.interfaces.OnSettingItemClickListener;
 import net.sunniwell.georgeconversion.recyclerview.NavigationItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.NavigationItemHeader;
 import net.sunniwell.georgeconversion.recyclerview.NavigationSettingAdaptor;
+import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +23,12 @@ import java.util.List;
 /**
  * Navigation 设置Item的Activity
  */
-public class NavigationSettingActivity extends AppCompatActivity {
+public class NavigationSettingActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "jpd-NaviSActi";
     private RecyclerView mRecyclerView;
     private NavigationSettingAdaptor mAdaptor;
     private LinearLayoutManager mManager;
+    private Button mBackButton;
     private List<NaviSettingItem> mItemList;
     private OnSettingItemClickListener listener;
 
@@ -91,6 +93,7 @@ public class NavigationSettingActivity extends AppCompatActivity {
         printList(mItemList);
     }
     private void initView() {
+        mBackButton = (Button)findViewById(R.id.back_button);
         mRecyclerView = (RecyclerView)findViewById(R.id.setting_recycler_layout);
         mAdaptor = new NavigationSettingAdaptor(this, mItemList);
         mManager = new LinearLayoutManager(this);
@@ -100,6 +103,7 @@ public class NavigationSettingActivity extends AppCompatActivity {
         mRecyclerView.addItemDecoration(new NavigationItemDecoration(this));
     }
     private void registerListener() {
+        mBackButton.setOnClickListener(this);
         listener = new OnSettingItemClickListener() {
             @Override
             public void onSettingItemClick() {
@@ -111,15 +115,18 @@ public class NavigationSettingActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onClick(View v) {
+        finish();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
                 if (resultCode == 1) {
-                    String defaultValue = data.getStringExtra("selecte_value");
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-                    editor.putString("default_money_number", defaultValue);
-                    editor.apply();
+                    String defaultValue = data.getStringExtra("select_value");
+                    SharedPreferenceUtil.setString(this, "default_money_number", defaultValue);
                     mAdaptor.notifyDataSetChanged();
                 }
                 break;
