@@ -13,8 +13,8 @@
         android:layout_height="match_parent">
 
         <android.support.v7.widget.Toolbar
+            android:id="@+id/tool_bar"
             android:layout_width="match_parent"
-            android:background="?attr/colorPrimary"
             android:layout_height="?attr/actionBarSize">
             <RelativeLayout
                 android:layout_width="match_parent"

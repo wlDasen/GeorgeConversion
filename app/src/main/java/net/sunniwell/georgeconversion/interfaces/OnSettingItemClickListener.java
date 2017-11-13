@@ -5,5 +5,5 @@ package net.sunniwell.georgeconversion.interfaces;
  */
 
 public interface OnSettingItemClickListener {
-    public void onSettingItemClick();
+    public void onSettingItemClick(int position);
 }

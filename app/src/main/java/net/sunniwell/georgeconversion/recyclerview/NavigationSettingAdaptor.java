@@ -23,6 +23,7 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
     private List<NaviSettingItem> mItemList;
     private Context mContext;
     private OnSettingItemClickListener listener;
+    public boolean disableItemClick = false;
 
     public NavigationSettingAdaptor(Context context, List<NaviSettingItem> list) {
         mContext = context;
@@ -55,10 +56,8 @@ public class NavigationSettingAdaptor extends RecyclerView.Adapter<NavigationSet
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (position == 0) { // 跳转货币默认值选择界面
-                    if (listener != null) {
-                        listener.onSettingItemClick();
-                    }
+                if (listener != null && !disableItemClick) {
+                    listener.onSettingItemClick(position);
                 }
             }
         });

@@ -76,7 +76,7 @@ public class SortAdapter extends RecyclerView.Adapter<SortAdapter.ViewHolder> {
                 if (mSortData.get(position).isMain4Money()) {
                     Toast.makeText(mContext, "重复的货币选择，请重新选择其他货币", Toast.LENGTH_LONG).show();
                 } else {
-                    MoneyDBUtil.setMain4Money(selectMoney, mSortData.get(position).getName(), mSwipePosition);F
+                    MoneyDBUtil.setMain4Money(selectMoney, mSortData.get(position).getName(), mSwipePosition);
                     SharedPreferenceUtil.setString(mContext, String.valueOf(mSwipePosition), mSortData.get(position).getCode());
                     if (listener != null) {
                         listener.onItemClick();

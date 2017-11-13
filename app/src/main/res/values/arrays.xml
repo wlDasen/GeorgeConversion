@@ -13,6 +13,31 @@
     <dimen name="header_padding_left">10dp</dimen>
     <dimen name="letter_top_padding">5dp</dimen>
     <dimen name="letter_bottom_padding">5dp</dimen>
+    <!--设置颜色选择界面的默认颜色配置-->
+    <string-array name="color_list">
+        <item>#1296db</item>
+        <item>#2c2c2c</item>
+        <item>#8a8a8a</item>
+        <item>#d4237a</item>
+        <item>#f4ea2a</item>
+        <item>#3F51B5</item>
+    </string-array>
+    <integer-array name="normal_drawable_id">
+        <item>2130837590</item>
+        <item>2130837592</item>
+        <item>2130837594</item>
+        <item>2130837596</item>
+        <item>2130837598</item>
+        <item>2130837600</item>
+    </integer-array>
+    <integer-array name="select_drawable_id">
+        <item>2130837591</item>
+        <item>2130837593</item>
+        <item>2130837595</item>
+        <item>2130837597</item>
+        <item>2130837599</item>
+        <item>2130837601</item>
+    </integer-array>
     <!--货币默认值得列表数值选项-->
     <string-array name="default_number_list">
         <item>1</item>

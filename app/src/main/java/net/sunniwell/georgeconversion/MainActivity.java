@@ -3,6 +3,7 @@ package net.sunniwell.georgeconversion;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Gravity;
@@ -21,10 +23,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import net.sunniwell.georgeconversion.db.ColorBean;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
 import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
+import net.sunniwell.georgeconversion.util.ColorDBUtil;
 import net.sunniwell.georgeconversion.util.HttpUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
@@ -32,6 +36,7 @@ import net.sunniwell.georgeconversion.util.SortFieldComparator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.util.ArrayList;
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String JUHE_APP_KEY = "225642569f50a0dbceacd72a94ef3519";
     private static final String JUHE_REAL_MONEY_RAT_URL = "http://op.juhe.cn/onebox/exchange/currency?";
+    private Toolbar mToolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         registerListener();
         init();
+
+        showMainpageData();
+        refreshMoneyRate();
+
+    }
+    private void initData() {
+        // 初始化Litepal数据库
+        SQLiteDatabase db = Connector.getDatabase();
+        if ("".equals(SharedPreferenceUtil.getString(this, DEFAULT_MONEY_NUMBER, ""))) {
+            SharedPreferenceUtil.setString(this, DEFAULT_MONEY_NUMBER, "100");
+        }
+        if ("".equals(SharedPreferenceUtil.getString(this, "default_color", ""))) {
+            SharedPreferenceUtil.setString(this, "default_color", "#3F51B5");
+            SharedPreferenceUtil.setInt(this, "default_color_position", 6);
+        }
         if (!SharedPreferenceUtil.getBoolean(this, "isConfigured", false)) {
             MoneyDBUtil.setMoneyList(this);
             SharedPreferenceUtil.setBoolean(this, "isConfigured", true);
@@ -108,13 +129,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // 设置初始主界面3个位置的pref和对应的moneyCode
             setPositionRecordPrefs();
         }
-        showMainpageData();
-        refreshMoneyRate();
-
-    }
-    private void initData() {
-        if ("".equals(SharedPreferenceUtil.getString(this, DEFAULT_MONEY_NUMBER, ""))) {
-            SharedPreferenceUtil.setString(this, DEFAULT_MONEY_NUMBER, "100");
+        if (!SharedPreferenceUtil.getBoolean(this, "isColorConfigured", false)) {
+            ColorDBUtil.setDefaultColorList(this);
+            SharedPreferenceUtil.setBoolean(this, "isColorConfigured", true);
         }
     }
     private void initView() {
@@ -293,8 +310,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void init() {
         Log.d(TAG, "init: ");
-        // 初始化Litepal数据库
-        SQLiteDatabase db = Connector.getDatabase();
+        ColorBean colorBean = ColorDBUtil.getDefaultColor();
+        Log.d(TAG, "init: " + colorBean);
+        mToolBar = (Toolbar)findViewById(R.id.tool_bar);
+        mToolBar.setBackgroundColor(Color.parseColor(colorBean.getColorStr()));
         mComparator = new SortFieldComparator();
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView)findViewById(R.id.nav_layout);

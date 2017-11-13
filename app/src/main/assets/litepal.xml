@@ -4,5 +4,6 @@
     <version value="1" />
     <list>
         <mapping class="net.sunniwell.georgeconversion.db.Money" />
+        <mapping class="net.sunniwell.georgeconversion.db.ColorBean" />
     </list>
 </litepal>
