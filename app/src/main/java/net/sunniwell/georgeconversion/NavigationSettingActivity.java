@@ -12,7 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -53,6 +55,11 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
     private Button currentButton;
     private List<Button> colorButtonList;
     private Handler mHandler;
+    private Toolbar mToolBar;
+    private int windowWidth;
+    private int windowHeight;
+    private int popwindowHorizontalMargin = 50;
+    private int popwindowVerticalMargin = 400;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +72,11 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
     }
 
     private void initData() {
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        windowWidth = dm.widthPixels;
+        windowHeight = dm.heightPixels;
+        Log.d(TAG, "initData: width:" + dm.widthPixels + "h:" + dm.heightPixels);
         Log.d(TAG, "initData: ");
         mHandler = new Handler() {
             @Override
@@ -123,6 +135,8 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
         printList(mItemList);
     }
     private void initView() {
+        mToolBar = (Toolbar)findViewById(R.id.navi_tool_bar);
+        mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         mBackButton = (Button)findViewById(R.id.back_button);
         mRecyclerView = (RecyclerView)findViewById(R.id.setting_recycler_layout);
         mAdaptor = new NavigationSettingAdaptor(this, mItemList);
@@ -150,7 +164,8 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                     getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                     View contentView = LayoutInflater.from(NavigationSettingActivity.this).inflate(R.layout.popup_window_layout, null);
                     Log.d(TAG, "onSettingItemClick: w:" + contentView.getWidth() + ",h:" + contentView.getHeight());
-                    mPopWindow = new PopupWindow(contentView, 800, 600);
+                    mPopWindow = new PopupWindow(contentView, windowWidth - popwindowHorizontalMargin * 2,
+                            windowHeight - popwindowVerticalMargin * 2);
                     Button button1 = (Button)contentView.findViewById(R.id.button1);
                     Button button2 = (Button) contentView.findViewById(R.id.button2);
                     Button button3 = (Button) contentView.findViewById(R.id.button3);
@@ -221,8 +236,9 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                 newColorBean.setDefault(true);
                 oldColorBean.save();
                 newColorBean.save();
+                mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
             }
-            mHandler.sendEmptyMessageDelayed(0, 500);
+            mHandler.sendEmptyMessageDelayed(0, 300);
             ColorDBUtil.printColorBean();
         }
     }
@@ -247,9 +263,15 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
         }
     }
 
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
-//        Log.d(TAG, "onTouch: ");
-//        return true;
-//    }
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: ....");
+        if (mPopWindow.isShowing()) {
+            Log.d(TAG, "onBackPressed: close popwindow");
+            mPopWindow.dismiss();
+        } else {
+            Log.d(TAG, "onBackPressed: finish...");
+            finish();
+        }
+    }
 }

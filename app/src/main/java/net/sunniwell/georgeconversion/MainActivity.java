@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private NavigationView mNavigationView;
     private Button mNavBtn;
     private DrawerLayout mDrawerLayout;
+    private View mHeaderView;
     private Button mRefreshBtn;
     private RecyclerView mRecyclerLayout;
     private List<Money> mMoneyList = new ArrayList<>();
@@ -80,10 +81,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (item.getItemId()) {
             case R.id.item2:
                 Intent intent = new Intent(MainActivity.this, NavigationSettingActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 0);
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 0) {
+            Log.d(TAG, "onActivityResult: ...");
+            mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
+            mHeaderView.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
+        }
     }
 
     /**
@@ -310,15 +321,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void init() {
         Log.d(TAG, "init: ");
-        ColorBean colorBean = ColorDBUtil.getDefaultColor();
-        Log.d(TAG, "init: " + colorBean);
         mToolBar = (Toolbar)findViewById(R.id.tool_bar);
-        mToolBar.setBackgroundColor(Color.parseColor(colorBean.getColorStr()));
+        mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         mComparator = new SortFieldComparator();
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView)findViewById(R.id.nav_layout);
         mNavigationView.setItemIconTintList(null);
         mNavigationView.setNavigationItemSelectedListener(this);
+        mHeaderView = mNavigationView.getHeaderView(0);
+        mHeaderView.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         mNavBtn = (Button)findViewById(R.id.toolbar_nav);
         mRefreshBtn = (Button)findViewById(R.id.toolbar_refresh);
         mNavBtn.setOnClickListener(this);

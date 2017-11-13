@@ -18,6 +18,7 @@ import net.sunniwell.georgeconversion.MainApplication;
 import net.sunniwell.georgeconversion.R;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.util.CalculateUtil;
+import net.sunniwell.georgeconversion.util.ColorDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 import net.sunniwell.georgeconversion.view.CustomEditText;
 
@@ -122,13 +123,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             }
         }
         holder.itemView.setTag(position);
+        holder.itemView.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         if (mMoneyList.get(position).isSelected()) {
             Log.d(TAG, "onBindViewHolder: isSelected.");
-            holder.itemView.setBackgroundResource(R.drawable.item_bg_select);
+            holder.itemView.setAlpha(0.8f);
             holder.moneyCount.obtainFocus();
         } else {
             Log.d(TAG, "onBindViewHolder: not selected.");
-            holder.itemView.setBackgroundResource(R.drawable.item_bg);
+            holder.itemView.setAlpha(1.0f);
         }
 
         if (mRefreshItemCount == 4) {
@@ -300,17 +302,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      */
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "onClick: ........................");
-        Log.d(TAG, "onClick: clickTag:" + v.getTag() + ",oldItemTag:" + mCurrentItem.getTag()
-            + ", oldCusEditTag:" + mCurrentEdit.getTag() + ",text:" + mCurrentEdit.getText());
         if (mCurrentItem != null) {
-            mCurrentItem.setBackgroundResource(R.drawable.item_bg);
+            mCurrentItem.setAlpha(1.0f);
             mMoneyList.get(mCurrentItemPosition).setSelected(false);
         }
         if (mCurrentEdit != null) {
             mCurrentEdit.loseFocus();
         }
-        v.setBackgroundResource(R.drawable.item_bg_select);
+        v.setAlpha(0.8f);
         mCurrentItem = v;
         mCurrentItemPosition = (int)v.getTag();
         mCurrentEdit = mCusEditList.get(mCurrentItemPosition);
