@@ -155,7 +155,7 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                 if (position == 0) { // 货币默认值选择界面
                     Intent intent = new Intent(NavigationSettingActivity.this, MoneyDefaultValueActivity.class);
                     startActivityForResult(intent, 1);
-                } else if (position == 1) {
+                } else if (position == 1) { // 颜色默认值选择界面
                     mAdaptor.disableItemClick = true;
                     colorButtonList.clear();
                     final WindowManager.LayoutParams dp = getWindow().getAttributes();
@@ -212,6 +212,10 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                             }).start();
                         }
                     });
+                } else if (position == 2) { // 换算小技巧界面
+                    Log.d(TAG, "onSettingItemClick: enter exchange skill activity..");
+                    Intent intent = new Intent(NavigationSettingActivity.this, ExchangeSkillActivity.class);
+                    startActivity(intent);
                 }
             }
         };
