@@ -1,12 +1,14 @@
 package net.sunniwell.georgeconversion;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -27,6 +29,7 @@ import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.recyclerview.CustomItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.SectorItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.SortAdapter;
+import net.sunniwell.georgeconversion.util.ColorDBUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.PinyinComparator;
 import net.sunniwell.georgeconversion.util.PinyinUtils;
@@ -44,6 +47,7 @@ public class SelectMoneyActivity extends AppCompatActivity {
     private ClearEditText mEditText;
     private List<Money> mDataList;
     private List<Money> originalList;
+    private Toolbar mToolBar;
     /**
      * RecyclerView实例
      */
@@ -167,6 +171,8 @@ public class SelectMoneyActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        mToolBar = (Toolbar)findViewById(R.id.select_money_toolbar);
+        mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         Intent intent = getIntent();
         String selectMoney = intent.getStringExtra("money_name");
         int position = intent.getIntExtra("position", 0);

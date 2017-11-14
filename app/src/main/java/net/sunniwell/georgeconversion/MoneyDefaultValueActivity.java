@@ -1,10 +1,12 @@
 package net.sunniwell.georgeconversion;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.sunniwell.georgeconversion.recyclerview.DefaultValueDecoration;
+import net.sunniwell.georgeconversion.util.ColorDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ public class MoneyDefaultValueActivity extends AppCompatActivity implements View
     private MyAdaptor mMyAdapter;
     private LinearLayoutManager mManager;
     private Button mBackButton;
+    private Toolbar mToolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,8 @@ public class MoneyDefaultValueActivity extends AppCompatActivity implements View
         }
     }
     private void initView() {
+        mToolBar = (Toolbar)findViewById(R.id.default_value_toolbar);
+        mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         mRecycler = (RecyclerView)findViewById(R.id.setting_recycler_layout);
         mMyAdapter = new MyAdaptor();
         mManager = new LinearLayoutManager(this);
