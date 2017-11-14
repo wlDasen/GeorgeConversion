@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             SharedPreferenceUtil.setInt(this, "default_color_position", 6);
         }
         if (!SharedPreferenceUtil.getBoolean(this, "isConfigured", false)) {
-            MoneyDBUtil.setMoneyList(this);
+            MoneyDBUtil.setDefaultMoneyList(this);
             SharedPreferenceUtil.setBoolean(this, "isConfigured", true);
         }
         // 判断初始主界面4个位置的pref

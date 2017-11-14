@@ -1,6 +1,7 @@
 package net.sunniwell.georgeconversion;
 
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -8,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +28,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import net.sunniwell.georgeconversion.db.ColorBean;
 import net.sunniwell.georgeconversion.db.NaviSettingItem;
@@ -34,8 +38,10 @@ import net.sunniwell.georgeconversion.recyclerview.NavigationItemDecoration;
 import net.sunniwell.georgeconversion.recyclerview.NavigationItemHeader;
 import net.sunniwell.georgeconversion.recyclerview.NavigationSettingAdaptor;
 import net.sunniwell.georgeconversion.util.ColorDBUtil;
+import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -216,6 +222,37 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                     Log.d(TAG, "onSettingItemClick: enter exchange skill activity..");
                     Intent intent = new Intent(NavigationSettingActivity.this, ExchangeSkillActivity.class);
                     startActivity(intent);
+                } else if (position == 3) { // 恢复默认币种列表
+                    Log.d(TAG, "onSettingItemClick: enter restore money list...");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NavigationSettingActivity.this);
+                    builder.setTitle("恢复默认币种列表");
+                    builder.setMessage("将恢复至首次启动时首页显示的默认货币列表");
+                    builder.setNegativeButton("取消", null);
+                    builder.setPositiveButton("恢复默认", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.d(TAG, "onClick: .....");
+                            MoneyDBUtil.setDefaultMoneyList(NavigationSettingActivity.this);
+                            Toast.makeText(NavigationSettingActivity.this, "数据恢复成功", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                    // 通过反射设置内容文字颜色为蓝色，必须在show之后设置，否则会报错
+                    Class<?> clazz = AlertDialog.class;
+                    try {
+                        Field mAlert = clazz.getDeclaredField("mAlert");
+                        mAlert.setAccessible(true);
+                        Object mAlertController = mAlert.get(dialog);
+                        Field mMessage = mAlertController.getClass().getDeclaredField("mMessageView");
+                        mMessage.setAccessible(true);
+                        TextView mMessageView = (TextView)mMessage.get(mAlertController);
+                        mMessageView.setTextColor(Color.BLUE);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    // 设置取消按钮文字颜色为蓝色，必须在show之后设置，否则会报错
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLUE);
                 }
             }
         };

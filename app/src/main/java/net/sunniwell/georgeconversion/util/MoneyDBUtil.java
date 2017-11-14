@@ -85,9 +85,9 @@ public class MoneyDBUtil {
     /**
      * 设置默认货币的各种信息
      */
-    public static void setMoneyList(Context context) {
+    public static void setDefaultMoneyList(Context context) {
         Log.d(TAG, "setMoneyList: ");
-
+        DataSupport.deleteAll(Money.class);
         String[] nameArrays = context.getResources().getStringArray(R.array.name);
         String[] codeArrays = context.getResources().getStringArray(R.array.code);
         int[] isMain4MoneyArrays = context.getResources().getIntArray(R.array.isMain4Money);
@@ -95,7 +95,6 @@ public class MoneyDBUtil {
         int[] orderFieldArrays = context.getResources().getIntArray(R.array.sortField);
         String[] base1CNYToCurrentArrays = context.getResources().getStringArray(R.array.base1CNYToCurrent);
         String[] base1CurrentToCNYArrays = context.getResources().getStringArray(R.array.base1CurrentToCNY);
-        Log.d(TAG, "setMoneyList: len:" + nameArrays.length);
         for (int i = 0; i < nameArrays.length; i++) {
             boolean isMain4Money = isMain4MoneyArrays[i] == 1 ? true : false;
             boolean isEverChoosed = isEverChoosedArrays[i] == 1 ? true : false;
@@ -123,12 +122,9 @@ public class MoneyDBUtil {
                     e.printStackTrace();
                 }
                 boolean save1 = chooseMoney.save();
-                Log.d(TAG, "setMoneyList: save1:" + save1);
             }
 
-            Log.d(TAG, "setMoneyList: money:" + money);
             boolean save2 = money.save();
-            Log.d(TAG, "setMoneyList: save2:" + save2);
         }
     }
 }
