@@ -31,4 +31,5 @@ dependencies {
     compile files('src/main/libs/pinyin4j-2.5.0.jar')
     compile 'org.litepal.android:core:1.6.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
 }
