@@ -1,9 +1,13 @@
 package net.sunniwell.georgeconversion;
 
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -23,7 +27,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import net.sunniwell.georgeconversion.db.ColorBean;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
@@ -36,14 +39,11 @@ import net.sunniwell.georgeconversion.util.SortFieldComparator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener
     , NavigationView.OnNavigationItemSelectedListener{
@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mDeleteBtn;
     private static final int requestDefaultMoney = 1;
     private static final String DEFAULT_MONEY_NUMBER = "default_money_number";
+    public static final int ENTER_MAIN_ACTIVITY_STATE_NORMAL = 0; // 正常进入主Acitivity状态
+    public static final int ENTER_MAIN_ACTIVITY_STATE_FROM_NAVIGATION = 1; // 从设置返回主Activity状态
+    public static final int ENTER_MAIN_ACTIVITY_STATE_FROM_SELECT_MONEY = 2; // 从货币选择界面返回主Activity状态
+    /**
+     * 主Activity默认进入方式
+     */
+    public static int currentEnterActivityState = ENTER_MAIN_ACTIVITY_STATE_NORMAL;
     /**
      * Money sortField字段排序的Comparator
      */
@@ -91,10 +98,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 0) {
-            Log.d(TAG, "onActivityResult: ...");
+            Log.d(TAG, "onActivityResult: 0");
+            currentEnterActivityState = ENTER_MAIN_ACTIVITY_STATE_FROM_NAVIGATION;
             mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
             mHeaderView.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         }
+        if (requestCode == 1) {
+            Log.d(TAG, "onActivityResult: 1");
+            currentEnterActivityState = ENTER_MAIN_ACTIVITY_STATE_FROM_SELECT_MONEY;
+        }
+    }
+
+    /**
+     * 获取当前网络是否可用
+     * @return true-可用 flase-不可用
+     */
+    @TargetApi(21)
+    private boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        Network[] networks = manager.getAllNetworks();
+        NetworkInfo info;
+        for (Network network : networks) {
+            info = manager.getNetworkInfo(network);
+            if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -202,8 +232,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        refreshMoneyRate();
         Log.d(TAG, "onResume: ");
+        if (currentEnterActivityState == ENTER_MAIN_ACTIVITY_STATE_NORMAL) {
+            Log.d(TAG, "onResume: current state is normal,need to refresh....");
+            refreshMoneyRate();
+        }
         showMainpageData();
 //        if (isSwiped) {
 //            Log.d(TAG, "onResume: isSwiped.");
@@ -248,44 +281,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void refreshMoneyRate() {
         Log.d(TAG, "refreshMoneyRate: ");
-       new Thread(new Runnable() {
-           @Override
-           public void run() {
-               List<Money> list = MoneyDBUtil.getMain4Money();
-               try {
-                   for (int i = 0; i < list.size(); i++) {
-                       Money money = list.get(i);
-                       if (!"CNY".equals(money.getCode())) {
-                           Response response = HttpUtil.sendPostByOkHttp(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
-                                   "CNY", money.getCode());
-//                           Log.d(TAG, "refreshMoneyRate: response:" + response.body().string());
-                           if (response.isSuccessful()) {
-                               Log.d(TAG, "run: response:" + response.body().string());
-                               Double[] data = parseRealRateJSON(response.body().string());
-                               Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
-                               money.setBase1CNYToCurrent(data[0]);
-                               money.setBase1CurrentToCNY(data[1]);
-                               money.save();
-                               Log.d(TAG, "run: " + money);
-                           }
-                       }
-                   }
-               } catch (Exception e) {
-                   e.printStackTrace();
-               }
-
-               mMoneyList.clear();
-               Collections.sort(list, mComparator);
-               mMoneyList.addAll(list);
-               runOnUiThread(new Runnable() {
-                   @Override
-                   public void run() {
-                       mAdapter.notifyDataSetChanged();
-                       mAdapter.needToRefresh = true;
-                   }
-               });
-           }
-       }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run: ");
+                int successsCount = 0;
+                if (isNetworkAvailable()) {
+                    List<Money> list = MoneyDBUtil.getMain4Money();
+                    for (int i = 0; i < list.size(); i++) {
+                        Money money = list.get(i);
+                        if (!"CNY".equals(money.getCode())) {
+                            Log.d(TAG, "run: begin connect....");
+                            String response = HttpUtil.sendRequestByHttpURLConnection(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
+                                    "CNY", money.getCode());
+                            if (response != null) {
+                                Double[] data = parseRealRateJSON(response);
+                                Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
+                                money.setBase1CNYToCurrent(data[0]);
+                                money.setBase1CurrentToCNY(data[1]);
+                                money.save();
+                                successsCount++;
+                            }
+                        } else {
+                            successsCount++;
+                        }
+                    }
+                    Log.d(TAG, "run: successCount:" + successsCount);
+                    if (successsCount == 4) {
+                        mMoneyList.clear();
+                        Collections.sort(list, mComparator);
+                        mMoneyList.addAll(list);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.notifyDataSetChanged();
+                                mAdapter.needToRefresh = true;
+                            }
+                        });
+                    }
+                } else {
+                    Log.d(TAG, "run: network is not available...");
+                }
+            }
+        }).start();
     }
 
     /**
@@ -349,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent(MainActivity.this, SelectMoneyActivity.class);
                 intent.putExtra("money_name", mMoneyList.get(position).getName());
                 intent.putExtra("position", position);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
             }
         };
