@@ -313,11 +313,11 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
         mAdaptor.setOnSettingItemClick(listener);
     }
 
-    // TODO: 2017/11/21 待GeorgeConversion发布后需要替换webpgeUrl 
+    // TODO: 2017/11/21 待GeorgeConversion发布后需要替换webpgeUrl
     private void shareWebSession(int type) {
         WXWebpageObject webpage = new WXWebpageObject();
 //        webpage.webpageUrl = "http://maven.sunniwell.net:8082/doc/test/1.html";
-        webpage.webpageUrl = "http://sj.qq.com/myapp/detail.htm?apkName=com.tencent.mm";
+        webpage.webpageUrl = "http://zhushou.360.cn/detail/index/soft_id/5427?recrefer=SE_D_%E5%BE%AE%E4%BF%A1";
 
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = "George汇率";
