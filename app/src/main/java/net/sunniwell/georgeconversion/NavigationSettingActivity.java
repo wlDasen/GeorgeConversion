@@ -24,12 +24,19 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import net.sunniwell.georgeconversion.db.ColorBean;
 import net.sunniwell.georgeconversion.db.NaviSettingItem;
@@ -66,15 +73,23 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
     private int windowHeight;
     private int popwindowHorizontalMargin = 50;
     private int popwindowVerticalMargin = 400;
+    private static final String APP_KEY = "wx751e35f50733882f";
+    private IWXAPI api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_setting);
 
+        regToWx();
         initData();
         initView();
         registerListener();
+    }
+
+    private void regToWx() {
+        api = WXAPIFactory.createWXAPI(this, APP_KEY, true);
+        api.registerApp(APP_KEY);
     }
 
     private void initData() {
@@ -253,16 +268,83 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                     }
                     // 设置取消按钮文字颜色为蓝色，必须在show之后设置，否则会报错
                     dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLUE);
+                } else if (position == 4) { // 分享给朋友界面
+                    Log.d(TAG, "onSettingItemClick: click share item...");
+                    mAdaptor.disableItemClick = true;
+                    final WindowManager.LayoutParams dp = getWindow().getAttributes();
+                    dp.alpha = 0.3f;
+                    getWindow().setAttributes(dp);
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                    View contentView = LayoutInflater.from(NavigationSettingActivity.this).inflate(R.layout.share_to_friends_pop_layout, null);
+                    LinearLayout friendsLayout = (LinearLayout)contentView.findViewById(R.id.friends_layout);
+                    LinearLayout shareLayout = (LinearLayout)contentView.findViewById(R.id.timeline_layout);
+                    friendsLayout.setOnClickListener(NavigationSettingActivity.this);
+                    shareLayout.setOnClickListener(NavigationSettingActivity.this);
+                    Log.d(TAG, "onSettingItemClick: w:" + contentView.getWidth() + ",h:" + contentView.getHeight());
+                    mPopWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.MATCH_PARENT, 300);
+                    mPopWindow.setBackgroundDrawable(new PaintDrawable());
+                    mPopWindow.setOutsideTouchable(true);
+                    mPopWindow.setTouchable(true);
+                    View rootView = LayoutInflater.from(NavigationSettingActivity.this).inflate(R.layout.activity_navigation_setting, null);
+                    mPopWindow.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
+                    mPopWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            Log.d(TAG, "onDismiss: ");
+                            dp.alpha = 1.0f;
+                            getWindow().setAttributes(dp);
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(200);
+                                        mAdaptor.disableItemClick = false;
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).start();
+                        }
+                    });
                 }
             }
         };
         mAdaptor.setOnSettingItemClick(listener);
     }
 
+    // TODO: 2017/11/21 待GeorgeConversion发布后需要替换webpgeUrl 
+    private void shareWebSession(int type) {
+        WXWebpageObject webpage = new WXWebpageObject();
+//        webpage.webpageUrl = "http://maven.sunniwell.net:8082/doc/test/1.html";
+        webpage.webpageUrl = "http://sj.qq.com/myapp/detail.htm?apkName=com.tencent.mm";
+
+        WXMediaMessage msg = new WXMediaMessage(webpage);
+        msg.title = "George汇率";
+        msg.description = "跳转到APK下载网页";
+
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = buildTransaction("webpage");
+        req.message = msg;
+        req.scene = type;
+        api.sendReq(req);
+    }
+
+    private String buildTransaction(final String type) {
+        return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
+    }
+
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "onClick: .....");
         if (v.getId() == R.id.back_button) { // 点击了ToolBar返回按钮
             finish();
+        } else if (v.getId() == R.id.friends_layout ) {
+            mPopWindow.dismiss();
+            shareWebSession(SendMessageToWX.Req.WXSceneSession);
+        } else if (v.getId() == R.id.timeline_layout) {
+            mPopWindow.dismiss();
+            shareWebSession(SendMessageToWX.Req.WXSceneTimeline);
         } else { // 点击了颜色选择界面的某种颜色
             ColorBean oldColorBean = ColorDBUtil.getDefaultColor();
             int oldPos = oldColorBean.getPosition();

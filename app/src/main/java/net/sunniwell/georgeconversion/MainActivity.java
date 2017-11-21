@@ -26,7 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
@@ -36,6 +35,7 @@ import net.sunniwell.georgeconversion.util.HttpUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 import net.sunniwell.georgeconversion.util.SortFieldComparator;
+import net.sunniwell.georgeconversion.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -266,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+
     /**
      * 打印list数据，仅用于测试
      * @param list 要打印的list
@@ -295,7 +297,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String response = HttpUtil.sendRequestByHttpURLConnection(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
                                     "CNY", money.getCode());
                             if (response != null) {
+                                Log.d(TAG, "run: response:" + response);
                                 Double[] data = parseRealRateJSON(response);
+                                Log.d(TAG, "run: data:" + data);
+                                if (data[0] == null || data[1] == null) {
+                                    break;
+                                }
                                 Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
                                 money.setBase1CNYToCurrent(data[0]);
                                 money.setBase1CurrentToCNY(data[1]);
