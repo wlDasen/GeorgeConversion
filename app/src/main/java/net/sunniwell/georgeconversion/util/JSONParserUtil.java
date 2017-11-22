@@ -9,11 +9,17 @@ import org.json.JSONObject;
 
 /**
  * Created by admin on 2017/11/22.
+ * 解析JSON数据的Util类
  */
 
 public class JSONParserUtil {
     private static final String TAG = "jpd-JSONParserUtil";
 
+    /**
+     * 对实时汇率数据进行解析并封装到Bean类中
+     * @param jsonData 要解析的服务器返回的JSON数据
+     * @return Bean类
+     */
     public static synchronized MoneyRealRateBean parseRealRateJSON(String jsonData) {
         Log.d(TAG, "parseRealRateJSON: jsonData:" + jsonData);
         MoneyRealRateBean moneyRealRateBean = new MoneyRealRateBean();

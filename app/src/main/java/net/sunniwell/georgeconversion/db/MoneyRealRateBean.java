@@ -2,6 +2,7 @@ package net.sunniwell.georgeconversion.db;
 
 /**
  * Created by admin on 2017/11/22.
+ * 实时汇率获取的JSON对应的各个字段Bean类
  */
 
 public class MoneyRealRateBean {
