@@ -25,10 +25,8 @@ public class MoneyDBUtil {
         List<Money> list = DataSupport
                 .where("ismain4money == ? and firstletter != ?", "1", "#")
                 .find(Money.class);
-        Log.d(TAG, "getMain4Money: size:" + list.size());
         for (int i = 0; i < list.size(); i++) {
             Money money = list.get(i);
-            Log.d(TAG, "getMain4Money: " + money);
         }
         return list;
     }

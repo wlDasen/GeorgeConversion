@@ -23,19 +23,16 @@ public class CustomEditText extends EditText implements View.OnFocusChangeListen
 
     public CustomEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        Log.d(TAG, "CustomEditText: 3");
         setOnFocusChangeListener(this);
         setOnTouchListener(this);
     }
 
     public CustomEditText(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        Log.d(TAG, "CustomEditText: 2");
     }
 
     public CustomEditText(Context context) {
         this(context, null);
-        Log.d(TAG, "CustomEditText: 1");
     }
 
     public void obtainFocus() {

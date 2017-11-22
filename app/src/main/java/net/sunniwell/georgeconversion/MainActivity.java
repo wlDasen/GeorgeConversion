@@ -27,20 +27,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import net.sunniwell.georgeconversion.db.Money;
+import net.sunniwell.georgeconversion.db.MoneyRealRateBean;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
 import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
 import net.sunniwell.georgeconversion.util.ColorDBUtil;
 import net.sunniwell.georgeconversion.util.HttpUtil;
+import net.sunniwell.georgeconversion.util.JSONParserUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 import net.sunniwell.georgeconversion.util.SortFieldComparator;
-import net.sunniwell.georgeconversion.util.Util;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.litepal.tablemanager.Connector;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isExit = true;
         }
     };
+    private static final String UPDATE_URL = "http://maven.sunniwell.net:8082/doc/test/upgrade.json";
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -140,16 +143,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "onCreate: ");
 
         initData();
         initView();
         registerListener();
         init();
-
+        checkUpdate();
         showMainpageData();
         refreshMoneyRate();
-
+    }
+    private void checkUpdate() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection conn = null;
+                try {
+                    URL url = new URL(UPDATE_URL);
+                    conn = (HttpURLConnection)url.openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(5000);
+                    InputStream is = conn.getInputStream();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int len = 0;
+                    while ((len = is.read(buffer)) != -1) {
+                        baos.write(buffer, 0, len);
+                    }
+                    baos.close();
+                    is.close();
+                    byte[] byteArray = baos.toByteArray();
+                    String response = new String(byteArray);
+                    Log.d(TAG, "checkUpdate: response:" + response);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
+                }
+            }
+        }).start();
     }
     private void initData() {
         // 初始化Litepal数据库
@@ -232,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
         if (currentEnterActivityState == ENTER_MAIN_ACTIVITY_STATE_NORMAL) {
             Log.d(TAG, "onResume: current state is normal,need to refresh....");
             refreshMoneyRate();
@@ -286,28 +318,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "run: ");
                 int successsCount = 0;
                 if (isNetworkAvailable()) {
                     List<Money> list = MoneyDBUtil.getMain4Money();
                     for (int i = 0; i < list.size(); i++) {
                         Money money = list.get(i);
                         if (!"CNY".equals(money.getCode())) {
-                            Log.d(TAG, "run: begin connect....");
                             String response = HttpUtil.sendRequestByHttpURLConnection(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
                                     "CNY", money.getCode());
-                            if (response != null) {
-                                Log.d(TAG, "run: response:" + response);
-                                Double[] data = parseRealRateJSON(response);
-                                Log.d(TAG, "run: data:" + data);
-                                if (data[0] == null || data[1] == null) {
-                                    break;
-                                }
-                                Log.d(TAG, "refreshMoneyRate: d1:" + data[0] + ",d2:" + data[1]);
-                                money.setBase1CNYToCurrent(data[0]);
-                                money.setBase1CurrentToCNY(data[1]);
+                            MoneyRealRateBean bean = JSONParserUtil.parseRealRateJSON(response);
+                            Log.d(TAG, "run: bean:" + bean);
+                            if (bean.getResults() != null) { // 正常获取到汇率数据
+                                MoneyRealRateBean.Result[] results = bean.getResults();
+                                String fromEx = results[0].getExchange();
+                                String toEx = results[1].getExchange();
+                                money.setBase1CNYToCurrent(Double.parseDouble(fromEx));
+                                money.setBase1CurrentToCNY(Double.parseDouble(toEx));
                                 money.save();
                                 successsCount++;
+                            } else { // 获取数据异常
+                                if (bean.getErrorCode() == 10012) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(MainActivity.this, "超过每日可允许请求次数!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    break;
+                                }
                             }
                         } else {
                             successsCount++;
@@ -326,8 +364,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
                     }
-                } else {
-                    Log.d(TAG, "run: network is not available...");
                 }
             }
         }).start();
@@ -342,30 +378,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         animator.start();
     }
 
-    private Double[] parseRealRateJSON(String jsonData) {
-        Double[] resultStr = new Double[2];
-        try {
-            JSONObject rateObj = new JSONObject(jsonData);
-            int errCode = rateObj.getInt("error_code");
-            Log.d(TAG, "parseRealRateJSON: errCode:" + errCode);
-            if (errCode == 0) {
-                JSONArray resultArr = rateObj.getJSONArray("result");
-                JSONObject fromObj = resultArr.getJSONObject(0);
-                JSONObject toObj = resultArr.getJSONObject(1);
-                resultStr[0] = Double.parseDouble(fromObj.getString("exchange"));
-                resultStr[1] = Double.parseDouble(toObj.getString("exchange"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultStr;
-    }
-
     /**
      * 初始化数据库和各种控件
      */
     private void init() {
-        Log.d(TAG, "init: ");
         mToolBar = (Toolbar)findViewById(R.id.tool_bar);
         mToolBar.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         mComparator = new SortFieldComparator();

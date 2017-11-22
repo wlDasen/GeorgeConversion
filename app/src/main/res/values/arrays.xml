@@ -65,8 +65,10 @@
     <!--Navigation设置的其他子条目-->
     <string-array name="navi_setting_other_item">
         <item>分享给朋友</item>
+        <item>关于</item>
     </string-array>
     <string-array name="navi_setting_other_item_defaultval">
+        <item></item>
         <item></item>
     </string-array>
     <string-array name="name">

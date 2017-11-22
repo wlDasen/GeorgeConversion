@@ -26,26 +26,31 @@ import okhttp3.Response;
 
 public class HttpUtil {
     private static final String TAG = "jpd-HttpUtil";
-
-    public static Response sendPostByOkHttp(String url, String key, String from, String to) {
-        Log.d(TAG, "sendPostByOkHttp: url:" + url + ",from:" + from + ",to:" + to);
+    public static Response sendGetByOkHttp(String url) {
         OkHttpClient client = new OkHttpClient();
-        Log.d(TAG, "sendPostByOkHttp: 1");
-        RequestBody body = new FormBody.Builder()
-                            .add("key", key)
-                            .add("from", from)
-                            .add("to", to).build();
-        Log.d(TAG, "sendPostByOkHttp: 2");
-        Request request = new Request.Builder().url(url).post(body).build();
-        Log.d(TAG, "sendPostByOkHttp: 3");
+        Request request = new Request.Builder().url(url).build();
         Response response = null;
         try {
-            Log.d(TAG, "sendPostByOkHttp: ");
             response = client.newCall(request).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "sendPostByOkHttp: ");
+        return response;
+    }
+    public static Response sendPostByOkHttp(String url, String key, String from, String to) {
+        Log.d(TAG, "sendPostByOkHttp: url:" + url + ",from:" + from + ",to:" + to);
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = new FormBody.Builder()
+                            .add("key", key)
+                            .add("from", from)
+                            .add("to", to).build();
+        Request request = new Request.Builder().url(url).post(body).build();
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return response;
     }
     public static String sendRequestByHttpURLConnection(String requestUrl, String key, String from, String to) {
@@ -64,23 +69,18 @@ public class HttpUtil {
             os.write(b);
             os.flush();
             os.close();
-            Log.d(TAG, "run: before get inputstream..");
             InputStream is = conn.getInputStream();
-            Log.d(TAG, "run: after get inputstream..");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int len = 0;
-            Log.d(TAG, "run: begin receive...");
             while ((len = is.read(buffer)) != -1) {
                 baos.write(buffer, 0, len);
             }
             baos.close();
             is.close();
-            Log.d(TAG, "run: after receive...");
             byte[] byteArray = baos.toByteArray();
             response = new String(byteArray);
             Log.d(TAG, "run: recvData:" + response);
-            Log.d(TAG, "run: finish connect....");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

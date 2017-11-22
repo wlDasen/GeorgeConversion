@@ -60,14 +60,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private Context mContext;
 
     public CustomAdapter(Context context, List<Money> countryList) {
-        Log.d(TAG, "CustomAdapter: ");
         this.mMoneyList = countryList;
         mContext = context;
 
         mETistener = new CustomEditText.OnEditTouchListener() {
             @Override
             public void onEditTouch(CustomEditText cet, int position) {
-                Log.d(TAG, "onEditTouch: position:" + position + ",text:" + cet.getText());
                 onClick(mViewList.get(position));
             }
         };
@@ -78,15 +76,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_item, parent, false);
         ViewHolder holder = new ViewHolder(view);
-        Log.d(TAG, "onCreateViewHolder: ");
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Log.d(TAG, "onBindViewHolder: po:" + position);
         mRefreshItemCount++;
-        Log.d(TAG, "onBindViewHolder: refreshCount:" + mRefreshItemCount);
         Money money = mMoneyList.get(position);
         holder.moneyName.setText(money.getName());
         holder.moneyCode.setText(money.getCode());
@@ -94,7 +89,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.moneyCount.setTag(position);
         holder.moneyCount.setOnEditTouchListener(mETistener);
         holder.itemView.setOnClickListener(this);
-        Log.d(TAG, "onBindViewHolder: position:" + position);
         if (mCusEditList.size() < 4) {
             mCusEditList.add(holder.moneyCount);
         } else {
@@ -125,11 +119,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.itemView.setTag(position);
         holder.itemView.setBackgroundColor(Color.parseColor(ColorDBUtil.getDefaultColor().getColorStr()));
         if (mMoneyList.get(position).isSelected()) {
-            Log.d(TAG, "onBindViewHolder: isSelected.");
             holder.itemView.setAlpha(0.8f);
             holder.moneyCount.obtainFocus();
         } else {
-            Log.d(TAG, "onBindViewHolder: not selected.");
             holder.itemView.setAlpha(1.0f);
         }
 
@@ -142,7 +134,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     private void dealEditData(int enterType) {
 //        Log.d(TAG, "dealEditData: isDefaultState:" + isDefaultState);
-        Log.d(TAG, "dealEditData: mCurPo:" + mCurrentItemPosition);
         double[] rates = new double[4];
         double baseRate = mMoneyList.get(mCurrentItemPosition).getBase1CNYToCurrent();
         for (int i = 0; i < rates.length; i++) {
@@ -161,7 +152,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         for (int i = 0; i < rates.length; i++) {
 //            Log.d(TAG, "dealEditData: before optimize:" + String.valueOf(rates[i]));
             String number = optimizeNumber(String.valueOf(rates[i]));
-            Log.d(TAG, "dealEditData: number:" + number + ",text:" + mCusEditList.get(i).getText());
             // TODO: 2017/11/7 添加刷新后的数字动画
             if (needToRefresh) {
                 if (!number.equals(mCusEditList.get(i).getText())) {
@@ -238,26 +228,22 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * @param number 按下的数字
      */
     public void numberChanged(int number) {
-        Log.d(TAG, "numberChanged: number:" + number);
         if (number >= 0 && number <= 9) { // 数字0~9
             if (isDefaultState) {
                 if (number != 0) {
                     isDefaultState = false;
                     mBuilder.append(String.valueOf(number));
-                    Log.d(TAG, "numberChanged: build:" + mBuilder.toString());
                     dealEditData(TYPE_INPUT_NUMBER);
                 }
             } else {
                 isDefaultState = false;
                 mBuilder.append(String.valueOf(number));
-                Log.d(TAG, "numberChanged: build:" + mBuilder.toString());
                 dealEditData(TYPE_INPUT_NUMBER);
             }
         }
         if (number == 14) { // 删除键
             if (mBuilder.length() > 0) {
                 mBuilder.deleteCharAt(mBuilder.length() - 1);
-                Log.d(TAG, "numberChanged: mBuild:" + mBuilder.toString());
             }
             if (mBuilder.length() == 0) {
                 isDefaultState = true;
@@ -320,11 +306,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             // 清除数字存储器内容
             mBuilder.delete(0, mBuilder.length());
             mBuilder.append(mCurrentEdit.getText().toString());
-            Log.d(TAG, "onClick: builder:" + mBuilder.toString());
         }
         dealEditData(TYPE_CHANGE_ITEM);
-        Log.d(TAG, "onClick: curPos:" + mCurrentItemPosition + ",curItemTag:" + mCurrentItem.getTag()
-            + ",curCusEditTag:" + mCurrentEdit.getId() + ",text:" + mCurrentEdit.getText().toString());
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
