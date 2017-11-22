@@ -3,6 +3,7 @@ package net.sunniwell.georgeconversion.util;
 import android.util.Log;
 
 import net.sunniwell.georgeconversion.db.MoneyRealRateBean;
+import net.sunniwell.georgeconversion.db.UpgradeBean;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,5 +53,27 @@ public class JSONParserUtil {
             e.printStackTrace();
         }
         return moneyRealRateBean;
+    }
+
+    /**
+     * 对服务器升级配置文件进行解析
+     * @param data 升级服务器返回的JSON数据
+     * @return Bean类
+     */
+    public static UpgradeBean parseUpgradeJSON(String data) {
+        Log.d(TAG, "parseUpgradeJSON: data:" + data);
+        UpgradeBean bean = new UpgradeBean();
+        try {
+            JSONObject obj = new JSONObject(data);
+            bean.setVersionName(obj.getString("version_name"));
+            bean.setVersionCode(obj.getInt("version_code"));
+            bean.setIsForce(obj.getInt("is_force"));
+            bean.setDescription(obj.getString("description"));
+            bean.setApkUrl(obj.getString("apk_url"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return bean;
     }
 }

@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import net.sunniwell.georgeconversion.db.Money;
 import net.sunniwell.georgeconversion.db.MoneyRealRateBean;
+import net.sunniwell.georgeconversion.db.UpgradeBean;
 import net.sunniwell.georgeconversion.interfaces.ItemSwipeListener;
 import net.sunniwell.georgeconversion.recyclerview.CustomAdapter;
 import net.sunniwell.georgeconversion.recyclerview.DragItemHelperCallback;
@@ -37,6 +38,8 @@ import net.sunniwell.georgeconversion.util.JSONParserUtil;
 import net.sunniwell.georgeconversion.util.MoneyDBUtil;
 import net.sunniwell.georgeconversion.util.SharedPreferenceUtil;
 import net.sunniwell.georgeconversion.util.SortFieldComparator;
+import net.sunniwell.georgeconversion.util.UpgradeUtil;
+
 import org.litepal.tablemanager.Connector;
 
 import java.io.ByteArrayOutputStream;
@@ -153,33 +156,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         refreshMoneyRate();
     }
     private void checkUpdate() {
+        Log.d(TAG, "checkUpdate: ");
         new Thread(new Runnable() {
             @Override
             public void run() {
-                HttpURLConnection conn = null;
-                try {
-                    URL url = new URL(UPDATE_URL);
-                    conn = (HttpURLConnection)url.openConnection();
-                    conn.setConnectTimeout(5000);
-                    conn.setReadTimeout(5000);
-                    InputStream is = conn.getInputStream();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[1024];
-                    int len = 0;
-                    while ((len = is.read(buffer)) != -1) {
-                        baos.write(buffer, 0, len);
-                    }
-                    baos.close();
-                    is.close();
-                    byte[] byteArray = baos.toByteArray();
-                    String response = new String(byteArray);
-                    Log.d(TAG, "checkUpdate: response:" + response);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (conn != null) {
-                        conn.disconnect();
-                    }
+                String response = HttpUtil.getByURLConnection(UPDATE_URL);
+                if (response != null) {
+                    UpgradeBean bean = JSONParserUtil.parseUpgradeJSON(response);
+                    Log.d(TAG, "checkUpdate run: bean:" + bean);
+                    UpgradeUtil.from(MainActivity.this).serverVersionName(bean.getVersionName())
+                            .serverVersionCode(bean.getVersionCode()).serverIsForce(bean.getIsForce())
+                            .description(bean.getDescription()).apkUrl(bean.getApkUrl()).update();
+
                 }
             }
         }).start();
@@ -230,23 +218,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 获取制定moneyCode在Prefs中对应的位置
-     * @param moneyCode 要获取的moneyCode
-     * @return moneyCode在prefs中对应的位置
-     */
-//    private int getPositionInPrefs(String moneyCode) {
-//        String position = null;
-//        Map map = SharedPreferenceUtil.getInstance(this).getAll();
-//        Set<String> keys = map.keySet();
-//        for (String key : keys) {
-//            if (map.get(key).equals(moneyCode)) {
-//                position = key;
-//            }
-//        }
-//        return Integer.parseInt(position);
-//    }
-
-    /**
      * 设置Adapter数据，刷新RecyclerView
      */
     private void showMainpageData() {
@@ -270,17 +241,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             refreshMoneyRate();
         }
         showMainpageData();
-//        if (isSwiped) {
-//            Log.d(TAG, "onResume: isSwiped.");
-//            mAdapter.notifyDataSetChanged();
-//            isSwiped = false;
-//        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy:... ");
     }
 
     @Override
@@ -324,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (int i = 0; i < list.size(); i++) {
                         Money money = list.get(i);
                         if (!"CNY".equals(money.getCode())) {
-                            String response = HttpUtil.sendRequestByHttpURLConnection(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
+                            String response = HttpUtil.postByURLConnection(JUHE_REAL_MONEY_RAT_URL, JUHE_APP_KEY,
                                     "CNY", money.getCode());
                             MoneyRealRateBean bean = JSONParserUtil.parseRealRateJSON(response);
                             Log.d(TAG, "run: bean:" + bean);

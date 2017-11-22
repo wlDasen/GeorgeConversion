@@ -26,34 +26,37 @@ import okhttp3.Response;
 
 public class HttpUtil {
     private static final String TAG = "jpd-HttpUtil";
-    public static Response sendGetByOkHttp(String url) {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
-        Response response = null;
+
+    public static String getByURLConnection(String updateUrl) {
+        Log.d(TAG, "GetByURLConnection: updateUrl:" + updateUrl);
+        String response = null;
+        HttpURLConnection conn = null;
         try {
-            response = client.newCall(request).execute();
+            URL url = new URL(updateUrl);
+            conn = (HttpURLConnection)url.openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            InputStream is = conn.getInputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = is.read(buffer)) != -1) {
+                baos.write(buffer, 0, len);
+            }
+            baos.close();
+            is.close();
+            byte[] byteArray = baos.toByteArray();
+            response = new String(byteArray);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
         return response;
     }
-    public static Response sendPostByOkHttp(String url, String key, String from, String to) {
-        Log.d(TAG, "sendPostByOkHttp: url:" + url + ",from:" + from + ",to:" + to);
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = new FormBody.Builder()
-                            .add("key", key)
-                            .add("from", from)
-                            .add("to", to).build();
-        Request request = new Request.Builder().url(url).post(body).build();
-        Response response = null;
-        try {
-            response = client.newCall(request).execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return response;
-    }
-    public static String sendRequestByHttpURLConnection(String requestUrl, String key, String from, String to) {
+    public static String postByURLConnection(String requestUrl, String key, String from, String to) {
         HttpURLConnection conn = null;
         String response = null;
         try {
@@ -90,22 +93,4 @@ public class HttpUtil {
         }
         return response;
     }
-
-//    public static void sendJSONPOSTByVolley(Context context, String url, Response.Listener<String> listener
-//        , Response.ErrorListener errorListener, final String key, final String from, final String to) {
-//        Log.d(TAG, "sendJSONRequestByVolley: ");
-//        RequestQueue queue = Volley.newRequestQueue(context);
-//        StringRequest request = new StringRequest(Request.Method.POST, url, listener,
-//                errorListener) {
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                HashMap<String, String> map = new HashMap<>();
-//                map.put("key", key);
-//                map.put("from", from);
-//                map.put("to", to);
-//                return map;
-//            }
-//        };
-//        queue.add(request);
-//    }
 }
