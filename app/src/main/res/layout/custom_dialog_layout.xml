@@ -20,12 +20,12 @@
             android:text="提示"
             android:textSize="16sp" />
         <TextView
+            android:id="@+id/content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:layout_marginLeft="20dp"
             android:lineSpacingExtra="5dp"
-            android:text="发现新版本:2.0是否下载更新?\n提示消息AAAAAAAAAAAA\nBBBBBBBBBB\nCCCCCCCCC"
             android:textSize="16sp"/>
 
         <View
@@ -40,7 +40,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/no"
+                android:id="@+id/button_cancle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -56,7 +56,7 @@
                 android:background="#E4E4E4" />
 
             <Button
-                android:id="@+id/yes"
+                android:id="@+id/button_confirm"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.sunniwell.georgeconversion.interfaces.DialogClickCallback;
 import net.sunniwell.georgeconversion.view.CustomDialog;
 
 /**
@@ -86,7 +87,19 @@ public class UpgradeUtil {
                 @Override
                 public void run() {
                     Log.d(TAG, "run: ");
-                    CustomDialog dialog = new CustomDialog(mActivity);
+                    CustomDialog dialog = new CustomDialog(mActivity, new DialogClickCallback() {
+                        @Override
+                        public void onButtonClicked(int position) {
+                            if (position == 0) { // 取消
+
+                            } else { // 确定
+
+                            }
+                        }
+                    });
+                    String content = "发现新版本:" + serverVersionName + "是否下载更新?"
+                            + "\n" + description;
+                    dialog.setContent(content);
                     dialog.show();
                 }
             });
