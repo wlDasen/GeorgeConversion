@@ -48,4 +48,12 @@ public class SharedPreferenceUtil {
         editor.putInt(params, value);
         editor.apply();
     }
+    public static long getLong(Context context, String params, long defValue) {
+        return getInstance(context).getLong(params, defValue);
+    }
+    public static void setLong(Context context, String params, long value) {
+        SharedPreferences.Editor editor = getInstance(context).edit();
+        editor.putLong(params, value);
+        editor.apply();
+    }
 }

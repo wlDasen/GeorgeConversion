@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_about"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="net.sunniwell.georgeconversion.AboutActivity">
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/icon"
+        android:layout_gravity="center_horizontal"/>
+    <TextView
+        android:id="@+id/version_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="20sp"
+        android:text="George汇率"/>
+    <Button
+        android:id="@+id/upgrade_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="检查更新"/>
+    <Button
+        android:id="@+id/status_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="get status"/>
+</LinearLayout>

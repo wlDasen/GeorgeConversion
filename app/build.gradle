@@ -32,4 +32,5 @@ dependencies {
     compile 'org.litepal.android:core:1.6.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     compile 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
+    compile 'com.liulishuo.filedownloader:library:1.6.8'
 }

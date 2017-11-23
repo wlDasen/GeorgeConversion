@@ -29,7 +29,8 @@
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".NavigationSettingActivity" />
         <activity android:name=".MoneyDefaultValueActivity" />
-        <activity android:name=".ExchangeSkillActivity"></activity>
+        <activity android:name=".ExchangeSkillActivity" />
+        <activity android:name=".AboutActivity"></activity>
     </application>
 
 </manifest>

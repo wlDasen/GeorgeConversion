@@ -24,7 +24,6 @@ public class CustomDialog extends AppCompatDialog implements View.OnClickListene
     private DialogClickCallback callback;
     public static final int CUSTOM_DIALOG_TYPE_WITH_TWOBUTTON = 0;
     public static final int CUSTOM_DIALOG_TYPE_WITH_CONFIRMBUTTON = 1;
-    private int dialogType = CUSTOM_DIALOG_TYPE_WITH_TWOBUTTON;
 
     public CustomDialog(Context context) {
         this(context, null);

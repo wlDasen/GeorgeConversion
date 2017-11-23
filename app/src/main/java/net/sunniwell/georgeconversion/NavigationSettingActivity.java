@@ -307,6 +307,10 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
                             }).start();
                         }
                     });
+                } else if (position == 5) { // 关于界面
+                    Log.d(TAG, "onSettingItemClick: click about item...");
+                    Intent intent = new Intent(NavigationSettingActivity.this, AboutActivity.class);
+                    startActivity(intent);
                 }
             }
         };
@@ -389,7 +393,7 @@ public class NavigationSettingActivity extends AppCompatActivity implements View
     @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: ....");
-        if (mPopWindow.isShowing()) {
+        if (mPopWindow != null && mPopWindow.isShowing()) {
             Log.d(TAG, "onBackPressed: close popwindow");
             mPopWindow.dismiss();
         } else {

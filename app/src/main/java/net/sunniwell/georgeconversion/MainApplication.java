@@ -3,6 +3,8 @@ package net.sunniwell.georgeconversion;
 import android.app.Application;
 import android.content.Context;
 
+import com.liulishuo.filedownloader.FileDownloader;
+
 import org.litepal.LitePal;
 
 /**
