@@ -22,6 +22,13 @@ public class CustomDialog extends AppCompatDialog implements View.OnClickListene
     private Button confirm;
     private Button cancle;
     private DialogClickCallback callback;
+    public static final int CUSTOM_DIALOG_TYPE_WITH_TWOBUTTON = 0;
+    public static final int CUSTOM_DIALOG_TYPE_WITH_CONFIRMBUTTON = 1;
+    private int dialogType = CUSTOM_DIALOG_TYPE_WITH_TWOBUTTON;
+
+    public CustomDialog(Context context) {
+        this(context, null);
+    }
 
     public CustomDialog(Context context, DialogClickCallback callback) {
         super(context);
@@ -41,16 +48,29 @@ public class CustomDialog extends AppCompatDialog implements View.OnClickListene
         if (v.getId() == R.id.button_confirm) {
             Log.d(TAG, "onClick: confirm...");
             cancel();
-            callback.onButtonClicked(1);
+            if (callback != null) {
+                callback.onConfirmButtonClicked();
+            }
         } else {
             Log.d(TAG, "onClick: cancle...");
             cancel();
-            callback.onButtonClicked(0);
         }
     }
 
-    public void setContent(String content) {
+    public CustomDialog setContent(String content) {
         Log.d(TAG, "setContent: ");
         text.setText(content);
+        return this;
+    }
+
+    public CustomDialog setDialogType(int type) {
+        if (type == CUSTOM_DIALOG_TYPE_WITH_CONFIRMBUTTON) {
+            cancle.setVisibility(View.GONE);
+        }
+        return this;
+    }
+    public CustomDialog setCancel(boolean flag) {
+        super.setCancelable(flag);
+        return this;
     }
 }

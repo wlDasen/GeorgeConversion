@@ -72,27 +72,29 @@ public class UpgradeUtil {
         return this;
     }
     public void update() {
-        if (!localVersionName.equals(serverVersionName)) { // 与服务器版本不一致需要升级
-            if (isWifiConnected()) {
-
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                builder.setTitle("升级提示");
-                builder.setMessage("已经是最新版本！");
-                builder.setPositiveButton("确定", null);
-                builder.show();
-            }
-        } else { // 与服务器版本一致不需要升级
+        if (localVersionName.equals(serverVersionName)) { // 与服务器版本一致不需要升级
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new CustomDialog(mActivity).setContent("已经是最新版本!").setDialogType(CustomDialog.CUSTOM_DIALOG_TYPE_WITH_CONFIRMBUTTON).show();
+                }
+            });
+        } else { // 与服务器版本不一致需要升级
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Log.d(TAG, "run: ");
                     CustomDialog dialog = new CustomDialog(mActivity, new DialogClickCallback() {
                         @Override
-                        public void onButtonClicked(int position) {
-                            if (position == 0) { // 取消
+                        public void onConfirmButtonClicked() {
+                            if (!isWifiConnected()) { // 非WIFI模式下下载
+                                new CustomDialog(mActivity, new DialogClickCallback() {
+                                    @Override
+                                    public void onConfirmButtonClicked() {
 
-                            } else { // 确定
+                                    }
+                                }).setContent("正在使用流量下载\n是否要继续下载?").setCancel(false).show();
+                            } else { // WIFI模式下下载
 
                             }
                         }
@@ -100,6 +102,7 @@ public class UpgradeUtil {
                     String content = "发现新版本:" + serverVersionName + "是否下载更新?"
                             + "\n" + description;
                     dialog.setContent(content);
+                    dialog.setCancel(false);
                     dialog.show();
                 }
             });
